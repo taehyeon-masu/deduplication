@@ -1,0 +1,29 @@
+# started on Sat Nov 29 16:15:56 2025
+
+
+ Performance counter stats for './dedup_bin c 2 30 ./samples/lux_raw.bin ./results/encode_20251129_161410/lux/b30/lux_b30.ddp':
+
+              8.38 msec task-clock                #    0.849 CPUs utilized          
+                 3      context-switches          #  357.994 /sec                   
+                 0      cpu-migrations            #    0.000 /sec                   
+               143      page-faults               #   17.064 K/sec                  
+        18,380,053      cycles                    #    2.193 GHz                    
+        47,063,013      instructions              #    2.56  insn per cycle         
+         9,396,849      branches                  #    1.121 G/sec                  
+            10,422      branch-misses             #    0.11% of all branches        
+        91,900,245      slots                     #   10.967 G/sec                  
+        48,292,677      topdown-retiring          #     52.5% retiring              
+         1,801,965      topdown-bad-spec          #      2.0% bad speculation       
+        33,876,953      topdown-fe-bound          #     36.9% frontend bound        
+         7,928,648      topdown-be-bound          #      8.6% backend bound         
+        22,161,869      L1-dcache-loads           #    2.645 G/sec                  
+         1,564,876      L1-dcache-load-misses     #    7.06% of all L1-dcache accesses
+             5,776      LLC-loads                 #  689.258 K/sec                  
+             1,725      LLC-load-misses           #   29.86% of all LL-cache accesses
+
+       0.009875253 seconds time elapsed
+
+       0.009129000 seconds user
+       0.000000000 seconds sys
+
+

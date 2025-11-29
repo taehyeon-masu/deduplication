@@ -1,0 +1,6 @@
+"Dstat 0.8.0 CSV output"
+"Author:","Dag Wieers <dag@wieers.com>",,,,"URL:","http://dag.wieers.com/home-made/dstat/"
+"Host:","S1",,,,"User:","root"
+"Cmdline:","dstat -cdngym --output ./results/encode_20251127_161828/RH/b24/dstat.csv 1",,,,"Date:","27 Nov 2025 16:19:29 KST"
+"total cpu usage",,,,,"dsk/total",,"net/total",,"paging",,"system",,"memory usage",,,
+"usr","sys","idl","wai","stl","read","writ","recv","send","in","out","int","csw","used","free","buff","cach"

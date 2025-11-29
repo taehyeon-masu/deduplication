@@ -1,0 +1,29 @@
+# started on Thu Nov 27 16:19:31 2025
+
+
+ Performance counter stats for './dedup_bin c 2 26 ./samples/RH_raw.bin ./results/encode_20251127_161828/RH/b26/RH_b26.ddp':
+
+              8.41 msec task-clock                #    0.863 CPUs utilized          
+                 3      context-switches          #  356.867 /sec                   
+                 0      cpu-migrations            #    0.000 /sec                   
+               116      page-faults               #   13.799 K/sec                  
+        18,444,253      cycles                    #    2.194 GHz                    
+        49,110,699      instructions              #    2.66  insn per cycle         
+         9,807,873      branches                  #    1.167 G/sec                  
+             9,914      branch-misses             #    0.10% of all branches        
+        92,125,155      slots                     #   10.959 G/sec                  
+        50,578,516      topdown-retiring          #     54.9% retiring              
+         1,445,100      topdown-bad-spec          #      1.6% bad speculation       
+        35,404,961      topdown-fe-bound          #     38.4% frontend bound        
+         4,696,576      topdown-be-bound          #      5.1% backend bound         
+        23,261,667      L1-dcache-loads           #    2.767 G/sec                  
+         1,286,134      L1-dcache-load-misses     #    5.53% of all L1-dcache accesses
+             4,231      LLC-loads                 #  503.301 K/sec                  
+             1,214      LLC-load-misses           #   28.69% of all LL-cache accesses
+
+       0.009744699 seconds time elapsed
+
+       0.009252000 seconds user
+       0.000000000 seconds sys
+
+
