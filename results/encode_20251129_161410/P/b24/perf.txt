@@ -1,0 +1,29 @@
+# started on Sat Nov 29 16:16:28 2025
+
+
+ Performance counter stats for './dedup_bin c 4 24 ./samples/P_raw.bin ./results/encode_20251129_161410/P/b24/P_b24.ddp':
+
+             35.41 msec task-clock                #    0.951 CPUs utilized          
+                 3      context-switches          #   84.731 /sec                   
+                 0      cpu-migrations            #    0.000 /sec                   
+               253      page-faults               #    7.146 K/sec                  
+        79,493,788      cycles                    #    2.245 GHz                    
+       220,029,942      instructions              #    2.77  insn per cycle         
+        44,015,406      branches                  #    1.243 G/sec                  
+            14,182      branch-misses             #    0.03% of all branches        
+       397,468,920      slots                     #   11.226 G/sec                  
+       226,011,738      topdown-retiring          #     56.9% retiring              
+         3,117,403      topdown-bad-spec          #      0.8% bad speculation       
+       149,635,358      topdown-fe-bound          #     37.6% frontend bound        
+        18,704,419      topdown-be-bound          #      4.7% backend bound         
+       105,524,571      L1-dcache-loads           #    2.980 G/sec                  
+         8,435,268      L1-dcache-load-misses     #    7.99% of all L1-dcache accesses
+            10,081      LLC-loads                 #  284.723 K/sec                  
+             4,172      LLC-load-misses           #   41.38% of all LL-cache accesses
+
+       0.037242267 seconds time elapsed
+
+       0.032177000 seconds user
+       0.004022000 seconds sys
+
+
