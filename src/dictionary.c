@@ -1,78 +1,89 @@
+// src/dictionary.c
 #include "../include/dictionary.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-#define INITIAL_CAPACITY 16
-
 void dict_init(Dictionary *dict, size_t block_size)
 {
+    dict->head = NULL;
+    dict->tail = NULL;
     dict->size = 0;
-    dict->capacity = INITIAL_CAPACITY;
     dict->block_size = block_size;
-    dict->blocks = (unsigned char **)malloc(sizeof(unsigned char *) * dict->capacity);
-    if (!dict->blocks)
-    {
-        fprintf(stderr, "Failed to allocate memory for dictionary\n");
-        exit(1);
-    }
 }
 
 void dict_free(Dictionary *dict)
 {
-    if (!dict)
-        return;
-    for (int i = 0; i < dict->size; ++i)
-    {
-        free(dict->blocks[i]);
-    }
-    free(dict->blocks);
-    dict->blocks = NULL;
-    dict->size = 0;
-    dict->capacity = 0;
-    dict->block_size = 0;
-}
+    if (!dict) return;
 
-static void dict_grow(Dictionary *dict)
-{
-    int new_cap = dict->capacity * 2;
-    unsigned char **new_blocks = (unsigned char **)realloc(dict->blocks, sizeof(unsigned char *) * new_cap);
-    if (!new_blocks)
-    {
-        fprintf(stderr, "Failed to reallocate dictionary\n");
-        exit(1);
+    DictNode *cur = dict->head;
+    while (cur) {
+        DictNode *next = cur->next;
+        free(cur->block);
+        free(cur);
+        cur = next;
     }
-    dict->blocks = new_blocks;
-    dict->capacity = new_cap;
+    dict->head = dict->tail = NULL;
+    dict->size = 0;
+    dict->block_size = 0;
 }
 
 int dict_find(const Dictionary *dict, const unsigned char *block)
 {
-    for (int i = 0; i < dict->size; ++i)
-    {
-        if (memcmp(dict->blocks[i], block, dict->block_size) == 0)
-        {
-            return i;
+    const DictNode *cur = dict->head;
+    while (cur) {
+        if (memcmp(cur->block, block, dict->block_size) == 0) {
+            return cur->index;
         }
+        cur = cur->next;
     }
     return -1;
 }
 
 int dict_add(Dictionary *dict, const unsigned char *block)
 {
-    if (dict->size == dict->capacity)
-    {
-        dict_grow(dict);
-    }
-    unsigned char *copy = (unsigned char *)malloc(dict->block_size);
-    if (!copy)
-    {
-        fprintf(stderr, "Failed to allocate block copy\n");
+    DictNode *node = (DictNode *)malloc(sizeof(DictNode));
+    if (!node) {
+        fprintf(stderr, "Failed to allocate DictNode\n");
         exit(1);
     }
-    memcpy(copy, block, dict->block_size);
-    dict->blocks[dict->size] = copy;
-    int idx = dict->size;
+    node->block = (unsigned char *)malloc(dict->block_size);
+    if (!node->block) {
+        fprintf(stderr, "Failed to allocate block copy\n");
+        free(node);
+        exit(1);
+    }
+    memcpy(node->block, block, dict->block_size);
+
+    node->index = dict->size;
+    node->next  = NULL;
+
+    if (dict->tail) {
+        dict->tail->next = node;
+    } else {
+        dict->head = node;
+    }
+    dict->tail = node;
     dict->size += 1;
-    return idx;
+
+    return node->index;
+}
+
+int dict_size(const Dictionary *dict)
+{
+    return dict ? dict->size : 0;
+}
+
+const unsigned char *dict_get_block(const Dictionary *dict, int index)
+{
+    if (!dict || index < 0 || index >= dict->size) return NULL;
+
+    const DictNode *cur = dict->head;
+    while (cur) {
+        if (cur->index == index) {
+            return cur->block;
+        }
+        cur = cur->next;
+    }
+    return NULL;
 }
