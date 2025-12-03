@@ -143,9 +143,10 @@ static size_t merge_base_and_deviation_multi(
  *  u32: num_blocks
  *  u32[num_segs]: seg_sizes
  *  [dictionary]: dict_size * block_bytes bytes
- *  [block_ids]:  num_blocks * 4 bytes
+ *  [block_ids]:  num_blocks * 1 byte (uint8_t, 0 ~ 255)
  *  [deviation]:  num_blocks * dev_len_per_block bytes
  * ------------------------------------------------------------ */
+
 int compress_file(const char *input_filename,
                   const char *output_filename,
                   int num_segs,
@@ -215,7 +216,7 @@ int compress_file(const char *input_filename,
                 (nbytes - used_bytes));
     }
 
-    uint32_t *block_ids = (uint32_t *)malloc(sizeof(uint32_t) * num_blocks);
+    uint8_t *block_ids = (uint8_t *)malloc(sizeof(uint8_t) * num_blocks);
     if (!block_ids)
     {
         fprintf(stderr, "Failed to allocate block_ids\n");
@@ -287,7 +288,22 @@ int compress_file(const char *input_filename,
         {
             idx = dict_add(&dict, block_buf);
         }
-        block_ids[b] = (uint32_t)idx;
+        if (idx > 255)
+        {
+            fprintf(stderr,
+                    "Dictionary size exceeded 255 entries (idx=%d). "
+                    "1-byte block_id is not enough.\n",
+                    idx);
+            free(block_buf);
+            free(dev_buf);
+            free(dev_stream);
+            free(block_ids);
+            dict_free(&dict);
+            fclose(fin);
+            return 1;
+        }
+
+        block_ids[b] = (uint8_t)idx;
     }
 
     fclose(fin);
@@ -370,9 +386,10 @@ int compress_file(const char *input_filename,
 
     for (size_t b = 0; b < num_blocks; ++b)
     {
-        if (!write_u32_le(fp, block_ids[b]))
+        uint8_t id = block_ids[b];
+        if (fwrite(&id, 1, 1, fp) != 1)
         {
-            fprintf(stderr, "Failed to write block id %zu (multi)\n", b);
+            fprintf(stderr, "Failed to write 1-byte block id %zu (multi)\n", b);
             fclose(fp);
             free(block_buf);
             free(dev_buf);
@@ -414,7 +431,7 @@ int compress_file(const char *input_filename,
 }
 
 int decompress_file(const char *input_filename,
-                           const char *output_filename)
+                    const char *output_filename)
 {
     FILE *fp = fopen(input_filename, "rb");
     if (!fp)
@@ -473,6 +490,17 @@ int decompress_file(const char *input_filename,
         return 1;
     }
 
+    if (dict_size > 255)
+    {
+        fprintf(stderr,
+                "DDP1 file dict_size=%zu > 255, "
+                "but decoder expects 1-byte block ids.\n",
+                dict_size);
+        free(seg_sizes);
+        fclose(fp);
+        return 1;
+    }
+
     size_t sum_bytes = 0;
     for (int s = 0; s < num_segs; ++s)
     {
@@ -525,7 +553,7 @@ int decompress_file(const char *input_filename,
         free(buf);
     }
 
-    uint32_t *block_ids = (uint32_t *)malloc(sizeof(uint32_t) * num_blocks);
+    uint8_t *block_ids = (uint8_t *)malloc(sizeof(uint8_t) * num_blocks);
     if (!block_ids)
     {
         fprintf(stderr, "Failed to allocate block_ids (multi dec)\n");
@@ -536,15 +564,17 @@ int decompress_file(const char *input_filename,
     }
     for (size_t b = 0; b < num_blocks; ++b)
     {
-        if (!read_u32_le(fp, &block_ids[b]))
+        int c = fgetc(fp);
+        if (c == EOF)
         {
-            fprintf(stderr, "Failed to read block id %zu (multi dec)\n", b);
+            fprintf(stderr, "Failed to read 1-byte block id %zu (multi dec)\n", b);
             free(block_ids);
             free(seg_sizes);
             dict_free(&dict);
             fclose(fp);
             return 1;
         }
+        block_ids[b] = (uint8_t)c;
     }
 
     size_t dev_total_bytes = num_blocks * dev_len_per_block;
