@@ -2,16 +2,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static void usage(const char *prog)
 {
     fprintf(stderr,
             "Usage:\n"
-            "  Single-sensor (uniform) compress:\n"
-            "    %s c <width_bytes> <block_size_samples> <input.bin> <output.ddp>\n"
-            "\n"
-            "  Multi-layout (multi-sensor) compress:\n"
-            "    %s m <num_segs> <seg1_bytes> ... <segN_bytes> <input.bin> <output.ddp>\n"
+            "  DDP1 compress (multi-layout, multi-sensor):\n"
+            "    %s ddp1 <num_segs> <seg1_bytes> ... <segN_bytes> <input.bin> <output.ddp>\n"
             "      - num_segs: 한 블록 안에 들어가는 세그먼트 개수\n"
             "      - seg*_bytes: 각 세그먼트의 바이트 수\n"
             "        예) T(2B), RH(2B), lux1(2B), P1(4B), lux2(2B), P2(4B)\n"
@@ -19,7 +17,7 @@ static void usage(const char *prog)
             "\n"
             "  Decompress (auto detect DDP1 / DDP2):\n"
             "    %s d <input.ddp> <output.bin>\n",
-            prog, prog, prog);
+            prog, prog);
 }
 
 int main(int argc, char **argv)
@@ -30,38 +28,12 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    char mode = argv[1][0];
-
-    if (mode == 'c' || mode == 'C')
+    /* ----- DDP1 Compress (multi-layout / multi-sensor) ----- */
+    if (strcmp(argv[1], "ddp1") == 0)
     {
-        /* 단일 센서 / 고정 width_bytes 모드 */
-        if (argc != 6)
-        {
-            fprintf(stderr, "Invalid arguments for single-sensor compress\n");
-            usage(argv[0]);
-            return 1;
-        }
-
-        int width_bytes        = atoi(argv[2]);
-        int block_size_samples = atoi(argv[3]);
-        const char *input_file = argv[4];
-        const char *output_ddp = argv[5];
-
-        int ret = compress_file(input_file, output_ddp,
-                                width_bytes, block_size_samples);
-        if (ret != 0)
-        {
-            fprintf(stderr, "compress_file (single) failed\n");
-            return ret;
-        }
-        return 0;
-    }
-    else if (mode == 'm' || mode == 'M')
-    {
-        /* multi-layout / multi-sensor 모드 */
         if (argc < 6)
         {
-            fprintf(stderr, "Invalid arguments for multi-layout compress\n");
+            fprintf(stderr, "Invalid arguments for DDP1 (multi-layout) compress\n");
             usage(argv[0]);
             return 1;
         }
@@ -77,7 +49,7 @@ int main(int argc, char **argv)
         if (argc != expected_argc)
         {
             fprintf(stderr,
-                    "Expected %d arguments for multi-layout compress, got %d\n",
+                    "Expected %d arguments for DDP1 compress, got %d\n",
                     expected_argc, argc);
             usage(argv[0]);
             return 1;
@@ -104,18 +76,19 @@ int main(int argc, char **argv)
         const char *input_file = argv[3 + num_segs];
         const char *output_ddp = argv[4 + num_segs];
 
-        int ret = compress_file_multi(input_file, output_ddp,
-                                      num_segs, seg_sizes);
+        int ret = compress_file(input_file, output_ddp,
+                                num_segs, seg_sizes);
         free(seg_sizes);
 
         if (ret != 0)
         {
-            fprintf(stderr, "compress_file_multi failed\n");
+            fprintf(stderr, "compress_file_multi (DDP1) failed\n");
             return ret;
         }
         return 0;
     }
-    else if (mode == 'd' || mode == 'D')
+    /* ----- Decompress (DDP1 / DDP2 auto detect) ----- */
+    else if (strcmp(argv[1], "d") == 0 || strcmp(argv[1], "D") == 0)
     {
         if (argc != 4)
         {
@@ -124,7 +97,7 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        const char *input_ddp  = argv[2];
+        const char *input_ddp = argv[2];
         const char *output_bin = argv[3];
 
         int ret = decompress_file(input_ddp, output_bin);
@@ -137,7 +110,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        fprintf(stderr, "Unknown mode '%c'\n", mode);
+        fprintf(stderr, "Unknown mode '%s'\n", argv[1]);
         usage(argv[0]);
         return 1;
     }
