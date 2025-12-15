@@ -86,7 +86,7 @@ static size_t compute_block_bytes_multi(int num_fields, const int *field_sizes)
  */
 static const int g_dev_positions[] = {
     /* 예시: P1 하위 2바이트(6,7), P2 하위 2바이트(12,13) */
-    4, 6, 10, 13};
+    0, 4, 6, 8, 10, 12};
 
 static const int g_num_dev_positions =
     (int)(sizeof(g_dev_positions) / sizeof(g_dev_positions[0]));
