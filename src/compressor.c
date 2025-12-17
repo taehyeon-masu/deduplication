@@ -1,7 +1,7 @@
 #include "../include/compressor.h"
 #include "../include/dictionary.h"
 #include "../include/bin_io.h"
-#include "../include/bitstats.h"   /* <-- 비트 통계용 */
+#include "../include/bitstats.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,11 +11,11 @@
 /* ============================================================
  * Terminology
  * ------------------------------------------------------------
- *  - field:  한 block 안의 센서별 조각 (예: T(2B), RH(2B), lux1(2B), P1(4B), ...)
- *  - segment: 출력 파일을 잘라 쓰는 단위
- *      * output.ddp       : segment 0
- *      * output.ddp.seg1  : segment 1
- *      * output.ddp.seg2  : segment 2
+ *  - field : 한 block 안의 센서별 조각 (예: T(2B), RH(2B), lux1(2B), P1(4B), ...)
+ *  - segment : 출력 파일을 잘라 쓰는 단위
+ *      * output.ddp       : segment 0  (순수 dedup, base/dev 없음)
+ *      * output.ddp.seg1  : segment 1  (base/dev 분리)
+ *      * output.ddp.seg2  : segment 2, ...
  * ============================================================ */
 
 /* ============================================================
@@ -44,45 +44,25 @@ static int read_u32_le(FILE *fp, uint32_t *out)
 }
 
 /* ============================================================
- * Bit helpers (block / deviation bitstream)
+ * Bit helpers
+ *   - block_buf, base_buf, dev_buf 모두 LSB-first bit packing 가정
  * ============================================================ */
 
-/* block(bit_pos)에서 비트 하나 읽기: LSB-first */
-static inline uint8_t get_block_bit(const unsigned char *buf, size_t bit_pos)
+static inline uint8_t get_bit_from_bytes(const unsigned char *buf, size_t bit_pos)
 {
-    size_t byte_idx = bit_pos / 8;
-    int    bit_idx  = (int)(bit_pos % 8); /* LSB-first */
+    size_t byte_idx = bit_pos / 8u;
+    int    bit_idx  = (int)(bit_pos % 8u); /* LSB-first */
     return (uint8_t)((buf[byte_idx] >> bit_idx) & 1u);
 }
 
-/* block(bit_pos)에 비트 하나 쓰기: LSB-first */
-static inline void set_block_bit(unsigned char *buf, size_t bit_pos, uint8_t v)
+static inline void set_bit_in_bytes(unsigned char *buf, size_t bit_pos, uint8_t v)
 {
-    size_t byte_idx = bit_pos / 8;
-    int    bit_idx  = (int)(bit_pos % 8);
+    size_t byte_idx = bit_pos / 8u;
+    int    bit_idx  = (int)(bit_pos % 8u);
     if (v)
         buf[byte_idx] |= (unsigned char)(1u << bit_idx);
     else
         buf[byte_idx] &= (unsigned char)~(1u << bit_idx);
-}
-
-/* deviation bitstream에서 i번째 비트 읽기 (LSB-first) */
-static inline uint8_t get_dev_bit(const unsigned char *buf, size_t bit_idx)
-{
-    size_t byte_idx = bit_idx / 8;
-    int    bit_in   = (int)(bit_idx % 8);
-    return (uint8_t)((buf[byte_idx] >> bit_in) & 1u);
-}
-
-/* deviation bitstream에 i번째 비트 쓰기 (LSB-first) */
-static inline void set_dev_bit(unsigned char *buf, size_t bit_idx, uint8_t v)
-{
-    size_t byte_idx = bit_idx / 8;
-    int    bit_in   = (int)(bit_idx % 8);
-    if (v)
-        buf[byte_idx] |= (unsigned char)(1u << bit_in);
-    else
-        buf[byte_idx] &= (unsigned char)~(1u << bit_in);
 }
 
 /* ============================================================
@@ -103,52 +83,9 @@ static size_t compute_block_bytes_multi(int num_fields, const int *field_sizes)
 }
 
 /* ============================================================
- * Deviation: bit-position 기반 설정
- *
- * - 압축 시:
- *   dev_positions[] 에 적힌 "block 내 비트 오프셋"에서만 비트를 뽑아
- *   dev_buf(bitstream)에 packing.
- *
- * - dev_pos_count   : deviation bit 개수 (#bits)
- * - dev_len_per_block: deviation bitstream의 길이 (바이트)
- *      dev_len_per_block = ceil(dev_pos_count / 8)
- *
- *  예) dev_positions = { 0, 1, 2 }  → dev_pos_count=3 → dev_len_per_block=1
- *      dev_positions = { 0..7 }     → dev_pos_count=8 → dev_len_per_block=1
- *      dev_positions = { 0..15 }    → dev_pos_count=16 → dev_len_per_block=2
- *
- *  디코딩 시: 헤더에 저장된 dev_positions[]를 그대로 사용
- *
- *  비트 packing 규칙:
- *    - i번째 deviation bit (0-based)는
- *        dev_buf[ i/8 ] 의 (i%8)-th bit (LSB 기준)에 저장
+ * Deviation 길이 (비트 개수 → 바이트)
  * ============================================================ */
 
-/*
- * (압축기에서 기본 deviation 비트 위치 설정 예시)
- *
- *  - g_dev_positions[]: block 내 비트 오프셋 (0 ~ block_bytes*8-1)
- *
- *  필요에 따라 bit 위치를 자유롭게 바꿔서 사용할 수 있음.
- *
- *  아래 예시는 그냥 예시용 패턴이니 실제로는 실험하면서 조정하면 됨.
- */
-static const int g_dev_positions[] = {
-    0,1,2,                        /* byte 0, bits 0~2 */
-    16,17,18,19,                  /* byte 2, bits 0~3 */
-    32,33,34,35,36,37,38,39,40,41,42, /* ... 예시 */
-    48,49,50,51,52,53,
-    64,65,
-    80,81,
-    96,97,98,99,100,101,102,103,
-    112,113,114,115,116,117,118,119,
-    128,129,130,131,132,133,134,135
-};
-
-static const int g_num_dev_positions =
-    (int)(sizeof(g_dev_positions) / sizeof(g_dev_positions[0]));
-
-/* num_bits(=dev_pos_count)를 dev_len_per_block(바이트)로 변환 */
 static size_t compute_dev_len_from_positions(int num_bits)
 {
     if (num_bits <= 0)
@@ -156,112 +93,365 @@ static size_t compute_dev_len_from_positions(int num_bits)
     return (size_t)((num_bits + 7) / 8); /* ceil(num_bits/8) */
 }
 
-/* block_buf에서 선택된 비트를 deviation bitstream(dev_buf)에 모으고,
- * block_buf의 해당 비트는 0으로 만들어 base만 남긴다.
- *
- *  - dev_positions : block 내 비트 오프셋들 (0 ~ block_bytes*8-1)
- *  - num_dev_bits  : deviation bit 개수 (#bits)
- *  - dev_buf       : 최소 dev_len_per_block 만큼 할당
- *      * dev_buf는 bitstream (LSB-first) 으로 사용
- *
- * dev_buf의 나머지 padding bit들은 0으로 채움.
- *
- * 반환값: dev_len_per_block (정상일 때)
- */
-static size_t extract_base_and_deviation_by_pos(
-    unsigned char *block_buf,
-    size_t block_bytes,
-    const int *dev_positions,
-    int num_dev_bits,
-    unsigned char *dev_buf,
-    size_t dev_len_per_block)
+/* ============================================================
+ * Dev 비트 선택 (bitstats 기반 top-n)
+ * ============================================================ */
+
+typedef struct {
+    size_t   bit_pos;
+    uint64_t count;
+} BitCount;
+
+static int cmp_bitcount_desc(const void *a, const void *b)
 {
-    if (!block_buf || !dev_positions || !dev_buf || num_dev_bits < 0)
-        return 0;
-
-    size_t block_bits = block_bytes * 8;
-
-    /* dev_buf 전체를 0으로 초기화 (padding 포함) */
-    for (size_t i = 0; i < dev_len_per_block; ++i)
-        dev_buf[i] = 0;
-
-    /* deviation bitstream 채우기 */
-    for (int i = 0; i < num_dev_bits; ++i)
-    {
-        int bit_pos = dev_positions[i];
-        if (bit_pos < 0 || (size_t)bit_pos >= block_bits)
-        {
-            fprintf(stderr,
-                    "extract_base_and_deviation_by_pos: invalid bit_pos=%d (block_bits=%zu)\n",
-                    bit_pos, block_bits);
-            return 0;
-        }
-
-        uint8_t bit = get_block_bit(block_buf, (size_t)bit_pos);
-        set_dev_bit(dev_buf, (size_t)i, bit);
-
-        /* base에서는 해당 비트를 0으로 클리어 */
-        set_block_bit(block_buf, (size_t)bit_pos, 0);
-    }
-
-    return dev_len_per_block;
+    const BitCount *x = (const BitCount *)a;
+    const BitCount *y = (const BitCount *)b;
+    if (x->count < y->count) return 1;   /* 내림차순 */
+    if (x->count > y->count) return -1;
+    return 0;
 }
 
-/* base_block + dev_buf(bitstream) → out_block (bit 위치 기반 복원)
+/* bitstats 결과에서 top-n 비트 위치를 골라 dev_positions에 채운다. */
+static int select_top_n_bits_from_bitstats(const BitStats *bs,
+                                           size_t top_n,
+                                           int **out_positions,
+                                           int *out_count)
+{
+    if (!bs || !out_positions || !out_count)
+        return -1;
+
+    size_t num_bits = bs->num_bits;
+    if (num_bits == 0 || !bs->change_counts)
+        return -1;
+
+    if (top_n == 0 || top_n > num_bits)
+        top_n = num_bits;
+
+    BitCount *arr = (BitCount *)malloc(sizeof(BitCount) * num_bits);
+    if (!arr)
+        return -1;
+
+    for (size_t i = 0; i < num_bits; ++i)
+    {
+        arr[i].bit_pos = i;
+        arr[i].count   = bs->change_counts[i];
+    }
+
+    qsort(arr, num_bits, sizeof(BitCount), cmp_bitcount_desc);
+
+    int *positions = (int *)malloc(sizeof(int) * top_n);
+    if (!positions)
+    {
+        free(arr);
+        return -1;
+    }
+
+    for (size_t i = 0; i < top_n; ++i)
+        positions[i] = (int)arr[i].bit_pos;
+
+    free(arr);
+
+    *out_positions = positions;
+    *out_count     = (int)top_n;
+    return 0;
+}
+
+/* ============================================================
+ * 전역 dev 비트 정보
+ *   - bitstats 1패스로 채워짐
+ * ============================================================ */
+
+static int   *g_dev_positions     = NULL;  /* dev bit positions(원본 block 기준, 0..block_bits-1) */
+static int    g_num_dev_positions = 0;
+
+/* 가장 많이 바뀐 비트를 몇 개 dev로 사용할지 (원하면 바꿔서 사용) */
+#ifndef DEV_TOP_N
+#define DEV_TOP_N 64
+#endif
+
+/* bitstats를 이용해 입력 파일 전체를 1패스 스캔 → dev 비트(top-n) 자동 선택 */
+static int init_dev_positions_with_bitstats(const char *input_filename,
+                                            size_t block_bytes,
+                                            size_t top_n)
+{
+    FILE *fp = fopen(input_filename, "rb");
+    if (!fp)
+    {
+        perror("fopen for bitstats");
+        return -1;
+    }
+
+    /* 파일 크기 */
+    if (fseek(fp, 0, SEEK_END) != 0)
+    {
+        perror("fseek end (bitstats)");
+        fclose(fp);
+        return -1;
+    }
+    long file_size = ftell(fp);
+    if (file_size < 0)
+    {
+        perror("ftell (bitstats)");
+        fclose(fp);
+        return -1;
+    }
+    if (fseek(fp, 0, SEEK_SET) != 0)
+    {
+        perror("fseek set (bitstats)");
+        fclose(fp);
+        return -1;
+    }
+
+    size_t nbytes = (size_t)file_size;
+    if (nbytes < block_bytes)
+    {
+        fprintf(stderr,
+                "bitstats: file too small for one block (block_bytes=%zu)\n",
+                block_bytes);
+        fclose(fp);
+        return -1;
+    }
+
+    size_t num_blocks = nbytes / block_bytes;
+    size_t used_bytes = num_blocks * block_bytes;
+    if (used_bytes < nbytes)
+    {
+        fprintf(stderr,
+                "bitstats: last %zu bytes ignored (not enough to fill a block)\n",
+                (nbytes - used_bytes));
+    }
+
+    size_t block_bits = block_bytes * 8u;
+
+    BitStats bs;
+    if (bitstats_init(&bs, block_bits) != 0)
+    {
+        fprintf(stderr, "bitstats_init failed\n");
+        fclose(fp);
+        return -1;
+    }
+
+    unsigned char *buf = (unsigned char *)malloc(block_bytes);
+    if (!buf)
+    {
+        fprintf(stderr, "bitstats: failed to allocate temp block\n");
+        bitstats_free(&bs);
+        fclose(fp);
+        return -1;
+    }
+
+    for (size_t b = 0; b < num_blocks; ++b)
+    {
+        size_t n = fread(buf, 1, block_bytes, fp);
+        if (n != block_bytes)
+        {
+            fprintf(stderr, "bitstats: failed to read block %zu\n", b);
+            free(buf);
+            bitstats_free(&bs);
+            fclose(fp);
+            return -1;
+        }
+        bitstats_update_block(&bs, buf, block_bytes);
+    }
+
+    free(buf);
+    fclose(fp);
+
+    /* 정렬된 결과 출력 (debug용) */
+    fprintf(stderr, "=== Bit change counts (sorted, desc) ===\n");
+    bitstats_print_sorted(stderr, &bs);
+
+    /* top-n 비트 자동 선택 */
+    if (select_top_n_bits_from_bitstats(&bs, top_n,
+                                        &g_dev_positions,
+                                        &g_num_dev_positions) != 0)
+    {
+        fprintf(stderr, "bitstats: select_top_n_bits_from_bitstats failed\n");
+        bitstats_free(&bs);
+        return -1;
+    }
+
+    fprintf(stderr,
+            "bitstats: selected %d dev bits (top_n=%zu, block_bits=%zu)\n",
+            g_num_dev_positions, top_n, block_bits);
+
+    bitstats_free(&bs);
+    return 0;
+}
+
+/* ============================================================
+ * Dev bit table helpers (is_dev_bit / dev_index)
+ * ============================================================ */
+
+/* is_dev_bit[bit_pos] = 1 if dev bit, 0 otherwise */
+static uint8_t *build_is_dev_bit_table(const int *dev_positions,
+                                       int dev_pos_count,
+                                       size_t block_bits)
+{
+    uint8_t *tbl = (uint8_t *)malloc(block_bits);
+    if (!tbl)
+        return NULL;
+
+    memset(tbl, 0, block_bits);
+    for (int i = 0; i < dev_pos_count; ++i)
+    {
+        int pos = dev_positions[i];
+        if (pos >= 0 && (size_t)pos < block_bits)
+            tbl[pos] = 1u;
+    }
+    return tbl;
+}
+
+/* dev_index[bit_pos] = dev bit의 인덱스 (0..dev_pos_count-1), base bit면 -1 */
+static int *build_dev_index_table(const int *dev_positions,
+                                  int dev_pos_count,
+                                  size_t block_bits)
+{
+    int *tbl = (int *)malloc(sizeof(int) * block_bits);
+    if (!tbl)
+        return NULL;
+
+    for (size_t i = 0; i < block_bits; ++i)
+        tbl[i] = -1;
+
+    for (int i = 0; i < dev_pos_count; ++i)
+    {
+        int pos = dev_positions[i];
+        if (pos >= 0 && (size_t)pos < block_bits)
+            tbl[pos] = i;
+    }
+    return tbl;
+}
+
+/* ============================================================
+ * base/dev 분리 (compact base + dev bitstream)
  *
- *  - base_block: dict에 저장된 base 블록 (dev bit 위치는 0이어야 함)
- *  - dev_buf   : dev_len_per_block 바이트짜리 deviation bitstream
- *  - dev_positions: deviation bit들이 들어갈 block bit 오프셋들
+ *  - block_buf : 원본 block (block_bytes)
+ *  - dev_positions : dev bit 위치 (block 내 bit offset)
+ *  - is_dev_bit    : dev 여부 table (bit 단위)
  *
- * 반환값: 실제 deviation bit 개수(raw) — 보통 num_dev_bits 와 같음
- */
-static size_t merge_base_and_deviation_by_pos(
-    const unsigned char *base_block,
+ *  base_buf : base_bits 비트를 bit-packed (LSB-first)
+ *  dev_buf  : dev_pos_count 비트를 bit-packed (LSB-first, dev_positions 순서)
+ * ============================================================ */
+
+static void split_block_to_base_and_dev_compact(
+    const unsigned char *block_buf,
     size_t block_bytes,
     const int *dev_positions,
-    int num_dev_bits,
+    int dev_pos_count,
+    const uint8_t *is_dev_bit,
+    unsigned char *base_buf,
+    size_t base_bytes,
+    unsigned char *dev_buf,
+    size_t dev_len_bytes)
+{
+    size_t block_bits = block_bytes * 8u;
+    size_t base_bits  = block_bits - (size_t)dev_pos_count;
+
+    (void)base_bytes;
+    (void)dev_len_bytes;
+
+    /* 초기화 */
+    memset(base_buf, 0, base_bytes);
+    memset(dev_buf,  0, dev_len_bytes);
+
+    /* base bits: dev가 아닌 bit들을 0..base_bits-1 순서로 채운다 */
+    size_t base_bit_idx = 0;
+    for (size_t bit_pos = 0; bit_pos < block_bits; ++bit_pos)
+    {
+        if (is_dev_bit[bit_pos])
+            continue;
+
+        uint8_t bit = get_bit_from_bytes(block_buf, bit_pos);
+        set_bit_in_bytes(base_buf, base_bit_idx, bit);
+        base_bit_idx++;
+    }
+
+    /* dev bits: dev_positions[] 순서대로 dev_buf에 채운다 */
+    for (int i = 0; i < dev_pos_count; ++i)
+    {
+        int pos = dev_positions[i];
+        uint8_t bit = get_bit_from_bytes(block_buf, (size_t)pos);
+        set_bit_in_bytes(dev_buf, (size_t)i, bit);
+    }
+
+    /* sanity check (디버그용, 필요하면 주석 해제) */
+    /*
+    if (base_bit_idx != base_bits) {
+        fprintf(stderr, "split_block_to_base_and_dev_compact: base_bit_idx=%zu, expected=%zu\n",
+                base_bit_idx, base_bits);
+    }
+    */
+}
+
+/* ============================================================
+ * base/dev 합치기 (compact base + dev bitstream → 원본 block)
+ *
+ *  - base_buf : base_bits 비트(bit-packed)
+ *  - dev_buf  : dev_pos_count 비트(bit-packed)
+ *  - is_dev_bit, dev_index : dev 여부 및 dev index 테이블
+ * ============================================================ */
+
+static void merge_base_and_dev_compact(
+    const unsigned char *base_buf,
+    size_t base_bytes,
     const unsigned char *dev_buf,
-    size_t dev_len_per_block,
+    size_t dev_len_bytes,
+    size_t block_bytes,
+    const uint8_t *is_dev_bit,
+    const int *dev_index,
+    int dev_pos_count,
     unsigned char *out_block)
 {
-    if (!base_block || !dev_positions || !dev_buf || !out_block)
-        return 0;
+    size_t block_bits = block_bytes * 8u;
+    size_t base_bits  = block_bits - (size_t)dev_pos_count;
 
-    /* 우선 out_block = base_block */
-    memcpy(out_block, base_block, block_bytes);
+    (void)base_bytes;
+    (void)dev_len_bytes;
 
-    size_t block_bits = block_bytes * 8;
-    (void)dev_len_per_block; /* 필요시 추가 검증용으로 사용 가능 */
+    memset(out_block, 0, block_bytes);
 
-    for (int i = 0; i < num_dev_bits; ++i)
+    size_t base_bit_idx = 0;
+
+    for (size_t bit_pos = 0; bit_pos < block_bits; ++bit_pos)
     {
-        int bit_pos = dev_positions[i];
-        if (bit_pos < 0 || (size_t)bit_pos >= block_bits)
+        uint8_t bit;
+        if (is_dev_bit[bit_pos])
         {
-            fprintf(stderr,
-                    "merge_base_and_deviation_by_pos: invalid bit_pos=%d (block_bits=%zu)\n",
-                    bit_pos, block_bits);
-            return 0;
+            int idx = dev_index[bit_pos];
+            if (idx < 0)
+                bit = 0;
+            else
+                bit = get_bit_from_bytes(dev_buf, (size_t)idx);
         }
-
-        uint8_t bit = get_dev_bit(dev_buf, (size_t)i);
-        set_block_bit(out_block, (size_t)bit_pos, bit);
+        else
+        {
+            if (base_bit_idx >= base_bits)
+                bit = 0;
+            else
+                bit = get_bit_from_bytes(base_buf, base_bit_idx);
+            base_bit_idx++;
+        }
+        set_bit_in_bytes(out_block, bit_pos, bit);
     }
-
-    return (size_t)num_dev_bits;
 }
 
-/* ------------------------------------------------------------
- * 하나의 segment(출력 파일 조각)를 DDP1 파일로 쓰는 helper
+/* ============================================================
+ * 하나의 segment를 DDP1 파일로 쓰는 helper
  *
- *   - base_out    : 기본 출력 파일 이름
- *   - segment_idx : 0 → base_out,
- *                   1 → base_out.seg1,
- *                   2 → base_out.seg2, ...
- * ------------------------------------------------------------ */
+ *  - block_bytes : 원본 block 크기 (field_sizes 합)
+ *  - base_bytes  : dictionary에 저장되는 base block 크기
+ *  - dev_pos_count : deviation bit 개수 (#bits)
+ *  - dev_len_per_block : deviation bitstream 길이 (bytes)
+ *
+ *  segment 0  : dev_pos_count=0, dev_len_per_block=0, base_bytes=block_bytes
+ *  segment>=1 : dev_pos_count>0, base_bytes < block_bytes
+ * ============================================================ */
+
 static int write_ddp1_segment(const char *base_out,
                               int segment_idx,
                               size_t block_bytes,
+                              size_t base_bytes,
                               int num_fields,
                               const int *field_sizes,
                               int dev_pos_count,
@@ -273,20 +463,13 @@ static int write_ddp1_segment(const char *base_out,
                               size_t num_blocks_segment)
 {
     if (num_blocks_segment == 0)
-    {
-        /* 쓸 블록이 없으면 아무것도 안 함 */
         return 0;
-    }
 
     char filename[1024];
     if (segment_idx == 0)
-    {
         snprintf(filename, sizeof(filename), "%s", base_out);
-    }
     else
-    {
         snprintf(filename, sizeof(filename), "%s.seg%d", base_out, segment_idx);
-    }
 
     FILE *fp = fopen(filename, "wb");
     if (!fp)
@@ -311,9 +494,9 @@ static int write_ddp1_segment(const char *base_out,
     uint32_t dev_len_u32       = (uint32_t)dev_len_per_block;  /* bytes */
 
     if (!write_u32_le(fp, block_bytes_u32) ||
-        !write_u32_le(fp, num_fields_u32) ||
-        !write_u32_le(fp, dict_size_u32) ||
-        !write_u32_le(fp, num_blocks_u32) ||
+        !write_u32_le(fp, num_fields_u32)  ||
+        !write_u32_le(fp, dict_size_u32)   ||
+        !write_u32_le(fp, num_blocks_u32)  ||
         !write_u32_le(fp, dev_pos_count_u32) ||
         !write_u32_le(fp, dev_len_u32))
     {
@@ -346,10 +529,10 @@ static int write_ddp1_segment(const char *base_out,
         }
     }
 
-    /* dictionary blocks */
+    /* dictionary blocks (base_bytes 길이) */
     for (int i = 0; i < dict->size; ++i)
     {
-        if (fwrite(dict->blocks[i], 1, block_bytes, fp) != block_bytes)
+        if (fwrite(dict->blocks[i], 1, base_bytes, fp) != base_bytes)
         {
             fprintf(stderr, "Failed to write dictionary block %d (segment)\n", i);
             fclose(fp);
@@ -369,7 +552,7 @@ static int write_ddp1_segment(const char *base_out,
         }
     }
 
-    /* deviation stream (bit-packed) */
+    /* deviation stream (bit-packed) : segment 0에서는 dev_len_per_block=0 → skip */
     if (dev_len_per_block > 0 && dev_stream)
     {
         size_t dev_total_bytes = num_blocks_segment * dev_len_per_block;
@@ -385,35 +568,19 @@ static int write_ddp1_segment(const char *base_out,
 
     fprintf(stderr,
             "[segment %d] wrote '%s': blocks=%zu, dict_size=%d, "
-            "dev_len_per_block=%zu (bytes), dev_pos_count=%d (bits)\n",
+            "block_bytes=%zu, base_bytes=%zu, dev_len_per_block=%zu (bytes), "
+            "dev_pos_count=%d (bits)\n",
             segment_idx, filename, num_blocks_segment, dict->size,
-            dev_len_per_block, dev_pos_count);
+            block_bytes, base_bytes, dev_len_per_block, dev_pos_count);
 
     return 0;
 }
 
-/* ------------------------------------------------------------
- * multi-layout 압축 (DDP1)
- *
- * 포맷 (각 segment 파일마다):
- *  magic: 'D','D','P','1'
- *  u32: block_bytes        (한 블록의 총 바이트 수)
- *  u32: num_fields         (블록 내부 field 개수)
- *  u32: dict_size          (사전에 저장된 base 블록 수)
- *  u32: num_blocks         (이 segment 안의 블록 수)
- *  u32: dev_pos_count      (# deviation bit positions)
- *  u32: dev_len_per_block  (deviation bitstream 길이, bytes)
- *  u32[num_fields]:  field_sizes  (각 field의 byte 수)
- *  u32[dev_pos_count]: dev_positions (block 내 deviation bit 오프셋들)
- *
- *  [dictionary]: dict_size * block_bytes bytes
- *  [block_ids]:  num_blocks * 1 byte (uint8_t, 0 ~ 255)
- *  [deviation]:  num_blocks * dev_len_per_block bytes (bit-packed)
- *
- *  - dict_size가 255에 도달하면:
- *      → 현재까지의 block들을 하나의 segment 파일로 flush
- *      → dictionary를 비우고, 새로운 segment 파일에 이어서 기록
- * ------------------------------------------------------------ */
+/* ============================================================
+ * Compression (multi-layout, segmented)
+ *   - segment 0 : 순수 dedup (dev 없음, dictionary block = full block)
+ *   - segment>=1: base/dev 분리, base compact + dev bitstream
+ * ============================================================ */
 
 int compress_file(const char *input_filename,
                   const char *output_filename,
@@ -433,17 +600,37 @@ int compress_file(const char *input_filename,
         return 1;
     }
 
-    /* deviation 길이 계산 (전역 g_dev_positions 사용, bit-count 기반) */
-    if (g_num_dev_positions < 0)
+    /* 1단계: bitstats로 dev 비트(top-n) 결정 (전역 g_dev_positions 사용) */
+    if (!g_dev_positions || g_num_dev_positions <= 0)
     {
-        fprintf(stderr, "compress_file_multi: invalid g_num_dev_positions\n");
+        if (init_dev_positions_with_bitstats(input_filename,
+                                             block_bytes,
+                                             DEV_TOP_N) != 0)
+        {
+            fprintf(stderr, "compress_file_multi: failed to init dev positions via bitstats\n");
+            return 1;
+        }
+    }
+
+    size_t block_bits = block_bytes * 8u;
+
+    int dev_pos_count_total = g_num_dev_positions;
+    if (dev_pos_count_total < 0)
+        dev_pos_count_total = 0;
+    if ((size_t)dev_pos_count_total > block_bits)
+    {
+        fprintf(stderr,
+                "compress_file_multi: dev_pos_count(%d) > block_bits(%zu)\n",
+                dev_pos_count_total, block_bits);
         return 1;
     }
-    size_t dev_len_per_block = compute_dev_len_from_positions(g_num_dev_positions);
 
-    /* dev_positions가 block_bits 범위 안에 있는지 확인 */
-    size_t block_bits = block_bytes * 8;
-    for (int i = 0; i < g_num_dev_positions; ++i)
+    size_t dev_len_per_block = compute_dev_len_from_positions(dev_pos_count_total);
+    size_t base_bits_total   = block_bits - (size_t)dev_pos_count_total;
+    size_t base_bytes_total  = (size_t)((base_bits_total + 7) / 8u);
+
+    /* dev_positions 범위 검증 */
+    for (int i = 0; i < dev_pos_count_total; ++i)
     {
         int bit_pos = g_dev_positions[i];
         if (bit_pos < 0 || (size_t)bit_pos >= block_bits)
@@ -455,11 +642,26 @@ int compress_file(const char *input_filename,
         }
     }
 
-    /* 입력 파일 열기 */
+    /* dev 여부 table (segment>=1에서 base/dev 분리에 사용) */
+    uint8_t *is_dev_bit = NULL;
+    if (dev_pos_count_total > 0)
+    {
+        is_dev_bit = build_is_dev_bit_table(g_dev_positions,
+                                            dev_pos_count_total,
+                                            block_bits);
+        if (!is_dev_bit)
+        {
+            fprintf(stderr, "compress_file_multi: build_is_dev_bit_table failed\n");
+            return 1;
+        }
+    }
+
+    /* 입력 파일 열기 (compression pass) */
     FILE *fin = fopen(input_filename, "rb");
     if (!fin)
     {
         perror("fopen input");
+        free(is_dev_bit);
         return 1;
     }
 
@@ -467,6 +669,7 @@ int compress_file(const char *input_filename,
     {
         perror("fseek end");
         fclose(fin);
+        free(is_dev_bit);
         return 1;
     }
     long file_size = ftell(fin);
@@ -474,12 +677,14 @@ int compress_file(const char *input_filename,
     {
         perror("ftell");
         fclose(fin);
+        free(is_dev_bit);
         return 1;
     }
     if (fseek(fin, 0, SEEK_SET) != 0)
     {
         perror("fseek set");
         fclose(fin);
+        free(is_dev_bit);
         return 1;
     }
 
@@ -488,6 +693,7 @@ int compress_file(const char *input_filename,
     {
         fprintf(stderr, "Input file too small for one multi-layout block\n");
         fclose(fin);
+        free(is_dev_bit);
         return 1;
     }
 
@@ -496,6 +702,7 @@ int compress_file(const char *input_filename,
     {
         fprintf(stderr, "No full blocks found (multi-layout)\n");
         fclose(fin);
+        free(is_dev_bit);
         return 1;
     }
 
@@ -507,157 +714,127 @@ int compress_file(const char *input_filename,
                 (nbytes - used_bytes));
     }
 
-    /* 전체 스트림에 대한 block_ids / deviation stream 버퍼 */
+    /* 전체 block에 대한 block_ids / dev_stream 버퍼 */
     uint8_t *block_ids = (uint8_t *)malloc(sizeof(uint8_t) * num_blocks_total);
     if (!block_ids)
     {
         fprintf(stderr, "Failed to allocate block_ids\n");
         fclose(fin);
+        free(is_dev_bit);
         return 1;
     }
 
-    size_t dev_total_bytes = num_blocks_total * dev_len_per_block;
     unsigned char *dev_stream = NULL;
     if (dev_len_per_block > 0)
     {
+        size_t dev_total_bytes = num_blocks_total * dev_len_per_block;
         dev_stream = (unsigned char *)malloc(dev_total_bytes);
         if (!dev_stream)
         {
-            fprintf(stderr, "Failed to allocate dev_stream (multi)\n");
+            fprintf(stderr, "Failed to allocate dev_stream\n");
             free(block_ids);
             fclose(fin);
+            free(is_dev_bit);
             return 1;
         }
     }
 
+    /* dictionary (segment별로 block size 다름)
+     *   - segment 0 : block_bytes (full block)
+     *   - segment>=1: base_bytes_total
+     */
     Dictionary dict;
-    dict_init(&dict, block_bytes);
+    dict_init(&dict, block_bytes); /* segment 0용 */
 
     unsigned char *block_buf = (unsigned char *)malloc(block_bytes);
-    unsigned char *dev_buf = (dev_len_per_block > 0)
-                                 ? (unsigned char *)malloc(dev_len_per_block)
-                                 : NULL;
+    unsigned char *base_buf  = (base_bytes_total > 0)
+                               ? (unsigned char *)malloc(base_bytes_total)
+                               : NULL;
+    unsigned char *dev_buf   = (dev_len_per_block > 0)
+                               ? (unsigned char *)malloc(dev_len_per_block)
+                               : NULL;
 
-    if (!block_buf || (dev_len_per_block > 0 && !dev_buf))
+    if (!block_buf || (base_bytes_total > 0 && !base_buf) ||
+        (dev_len_per_block > 0 && !dev_buf))
     {
-        fprintf(stderr, "Failed to allocate block/dev buffer (multi)\n");
+        fprintf(stderr, "Failed to allocate block/base/dev buffer\n");
         free(block_buf);
+        free(base_buf);
         free(dev_buf);
         free(dev_stream);
         free(block_ids);
         dict_free(&dict);
         fclose(fin);
+        free(is_dev_bit);
         return 1;
     }
 
-    /* --- BitStats 초기화 (비트 변동 통계용) --- */
-    BitStats global_stats;
-    BitStats segment_stats;
-    if (bitstats_init(&global_stats, block_bits) != 0 ||
-        bitstats_init(&segment_stats, block_bits) != 0)
-    {
-        fprintf(stderr, "Failed to init BitStats\n");
-        free(block_buf);
-        free(dev_buf);
-        free(dev_stream);
-        free(block_ids);
-        dict_free(&dict);
-        fclose(fin);
-        return 1;
-    }
-
-    /* raw 블록을 따로 보관해서 deviation 추출로 block_buf가 바뀌어도
-     * 비트 통계는 raw 기준으로 계산.
-     */
-    unsigned char *raw_block_buf = (unsigned char *)malloc(block_bytes);
-    if (!raw_block_buf)
-    {
-        fprintf(stderr, "Failed to allocate raw_block_buf\n");
-        bitstats_free(&global_stats);
-        bitstats_free(&segment_stats);
-        free(block_buf);
-        free(dev_buf);
-        free(dev_stream);
-        free(block_ids);
-        dict_free(&dict);
-        fclose(fin);
-        return 1;
-    }
-
-    /* segment 관리 변수 */
-    int    segment_idx          = 0;    /* 0 -> output.ddp, 1 -> output.ddp.seg1 ... */
-    size_t global_b             = 0;    /* 전체 block index */
-    size_t segment_start_block  = 0;    /* 이 segment가 시작되는 global block index */
-    size_t segment_block_count  = 0;    /* 이 segment 안에 실제로 포함된 block 수 */
+    int    segment_idx         = 0; /* 0 -> 순수 dedup, 1+ -> base/dev */
+    size_t global_b            = 0; /* 전체 block index */
+    size_t segment_start_block = 0; /* 이 segment가 시작되는 global block index */
+    size_t segment_block_count = 0; /* 이 segment 안에 들어가는 block 수 */
 
     while (global_b < num_blocks_total)
     {
-        /* block 하나 읽기 */
+        /* 원본 block 읽기 */
         size_t n = fread(block_buf, 1, block_bytes, fin);
         if (n != block_bytes)
         {
             fprintf(stderr, "Failed to read block %zu (multi)\n", global_b);
             free(block_buf);
+            free(base_buf);
             free(dev_buf);
             free(dev_stream);
             free(block_ids);
-            free(raw_block_buf);
-            bitstats_free(&global_stats);
-            bitstats_free(&segment_stats);
             dict_free(&dict);
             fclose(fin);
+            free(is_dev_bit);
             return 1;
         }
 
-        /* deviation 추출 전에 raw 복사 */
-        memcpy(raw_block_buf, block_buf, block_bytes);
+        /* 이 block을 어느 segment/dict에 넣을지 결정하기 위해,
+         * 필요하다면 segment flush를 먼저 처리해야 한다.
+         * flush는 "새로운 unique base를 넣으려는데 dict.size == 255"인 순간 수행.
+         * flush 후에는 같은 block을 새로운 segment 설정으로 다시 처리한다.
+         */
 
-        /* deviation 추출 (bit packed) */
-        if (dev_len_per_block > 0)
+        while (1)
         {
-            size_t used_dev = extract_base_and_deviation_by_pos(
-                block_buf,
-                block_bytes,
-                g_dev_positions,
-                g_num_dev_positions,
-                dev_buf,
-                dev_len_per_block);
+            unsigned char *key_ptr = NULL;
 
-            if (used_dev != dev_len_per_block)
+            if (segment_idx == 0)
             {
-                fprintf(stderr,
-                        "extract_base_and_deviation_by_pos: used_dev=%zu, expected=%zu\n",
-                        used_dev, dev_len_per_block);
-                free(block_buf);
-                free(dev_buf);
-                free(dev_stream);
-                free(block_ids);
-                free(raw_block_buf);
-                bitstats_free(&global_stats);
-                bitstats_free(&segment_stats);
-                dict_free(&dict);
-                fclose(fin);
-                return 1;
+                /* segment 0: 순수 dedup → full block을 key로 사용 (base/dev 없음) */
+                key_ptr = block_buf;
+            }
+            else
+            {
+                /* segment>=1: base/dev 분리 */
+                if (dev_pos_count_total > 0)
+                {
+                    split_block_to_base_and_dev_compact(
+                        block_buf,
+                        block_bytes,
+                        g_dev_positions,
+                        dev_pos_count_total,
+                        is_dev_bit,
+                        base_buf,
+                        base_bytes_total,
+                        dev_buf,
+                        dev_len_per_block);
+
+                    memcpy(dev_stream + global_b * dev_len_per_block,
+                           dev_buf,
+                           dev_len_per_block);
+                }
+                key_ptr = base_buf;
             }
 
-            memcpy(dev_stream + global_b * dev_len_per_block,
-                   dev_buf,
-                   dev_len_per_block);
-        }
+            int idx = dict_find(&dict, key_ptr);
 
-        /* dictionary lookup / insert
-         * - 새로운 base가 들어왔는데 dict.size == 255라면
-         *   → 지금까지 모인 block들을 한 segment 파일로 flush 후
-         *   → dictionary 비우고 다음 segment 시작
-         *
-         *   이때 현재 블록(global_b)은 "다음 segment의 첫 블록"이 된다.
-         */
-        int idx = dict_find(&dict, block_buf);
-        if (idx == -1)
-        {
-            if (dict.size >= 255)
+            if (idx == -1 && dict.size >= 255)
             {
-                /* 현재 segment flush (이전 블록들만 포함) */
+                /* ---- 현재 segment flush ---- */
                 size_t blocks_in_segment = segment_block_count;
                 if (blocks_in_segment > 0)
                 {
@@ -665,20 +842,40 @@ int compress_file(const char *input_filename,
                         block_ids + segment_start_block;
                     const unsigned char *segment_dev_stream = NULL;
 
-                    if (dev_len_per_block > 0 && dev_stream)
+                    int    seg_dev_pos_count = 0;
+                    size_t seg_dev_len       = 0;
+                    size_t seg_base_bytes    = block_bytes;     /* default */
+
+                    if (segment_idx == 0)
                     {
-                        segment_dev_stream =
-                            dev_stream + segment_start_block * dev_len_per_block;
+                        /* segment 0: dev 없음, base = full block */
+                        seg_dev_pos_count = 0;
+                        seg_dev_len       = 0;
+                        seg_base_bytes    = block_bytes;
+                    }
+                    else
+                    {
+                        /* segment>=1: dev 사용, base compact */
+                        seg_dev_pos_count = dev_pos_count_total;
+                        seg_dev_len       = dev_len_per_block;
+                        seg_base_bytes    = base_bytes_total;
+
+                        if (dev_stream && dev_len_per_block > 0)
+                        {
+                            segment_dev_stream =
+                                dev_stream + segment_start_block * dev_len_per_block;
+                        }
                     }
 
                     if (write_ddp1_segment(output_filename,
                                            segment_idx,
                                            block_bytes,
+                                           seg_base_bytes,
                                            num_fields,
                                            field_sizes,
-                                           g_num_dev_positions,
-                                           g_dev_positions,
-                                           dev_len_per_block,
+                                           seg_dev_pos_count,
+                                           (seg_dev_pos_count > 0) ? g_dev_positions : NULL,
+                                           seg_dev_len,
                                            &dict,
                                            segment_block_ids,
                                            segment_dev_stream,
@@ -687,78 +884,80 @@ int compress_file(const char *input_filename,
                         fprintf(stderr, "Failed to write segment %d\n",
                                 segment_idx);
                         free(block_buf);
+                        free(base_buf);
                         free(dev_buf);
                         free(dev_stream);
                         free(block_ids);
-                        free(raw_block_buf);
-                        bitstats_free(&global_stats);
-                        bitstats_free(&segment_stats);
                         dict_free(&dict);
                         fclose(fin);
+                        free(is_dev_bit);
                         return 1;
                     }
-
-                    /* 세그먼트별 비트 변동 통계 출력 */
-                    char label[64];
-                    snprintf(label, sizeof(label), "segment %d", segment_idx);
-                    bitstats_print(&segment_stats, label, stderr);
-                    bitstats_reset(&segment_stats);
                 }
 
-                /* 새 segment 시작 */
+                /* ---- 새 segment 시작 ---- */
                 dict_free(&dict);
-                dict_init(&dict, block_bytes);
-
                 segment_idx++;
-                segment_start_block = global_b;   /* 현재 블록이 새 segment의 첫 블록 */
+
+                if (segment_idx == 0)
+                {
+                    /* 이론상 오지 않음 */
+                    dict_init(&dict, block_bytes);
+                }
+                else
+                {
+                    /* segment>=1 : base_bytes_total 크기의 base dictionary */
+                    dict_init(&dict, base_bytes_total);
+                }
+
+                segment_start_block = global_b;
                 segment_block_count = 0;
+
+                /* 동일 block을 새 segment 설정으로 다시 처리 */
+                continue;
             }
 
-            idx = dict_add(&dict, block_buf);
-            if (idx < 0)
+            /* 여기까지 왔으면 flush 없이 진행 가능 */
+            if (idx == -1)
             {
-                fprintf(stderr, "dict_add failed\n");
+                idx = dict_add(&dict, key_ptr);
+                if (idx < 0)
+                {
+                    fprintf(stderr, "dict_add failed\n");
+                    free(block_buf);
+                    free(base_buf);
+                    free(dev_buf);
+                    free(dev_stream);
+                    free(block_ids);
+                    dict_free(&dict);
+                    fclose(fin);
+                    free(is_dev_bit);
+                    return 1;
+                }
+            }
+
+            if (idx < 0 || idx > 255)
+            {
+                fprintf(stderr,
+                        "Dictionary index out of range (idx=%d). "
+                        "Expect 0..255 for 1-byte IDs.\n",
+                        idx);
                 free(block_buf);
+                free(base_buf);
                 free(dev_buf);
                 free(dev_stream);
                 free(block_ids);
-                free(raw_block_buf);
-                bitstats_free(&global_stats);
-                bitstats_free(&segment_stats);
                 dict_free(&dict);
                 fclose(fin);
+                free(is_dev_bit);
                 return 1;
             }
+
+            block_ids[global_b] = (uint8_t)idx;
+            segment_block_count++;
+            break; /* while(1) 탈출 → 다음 block */
         }
 
-        if (idx < 0 || idx > 255)
-        {
-            fprintf(stderr,
-                    "Dictionary index out of range (idx=%d). "
-                    "Expect 0..255 for 1-byte IDs.\n",
-                    idx);
-            free(block_buf);
-            free(dev_buf);
-            free(dev_stream);
-            free(block_ids);
-            free(raw_block_buf);
-            bitstats_free(&global_stats);
-            bitstats_free(&segment_stats);
-            dict_free(&dict);
-            fclose(fin);
-            return 1;
-        }
-
-        block_ids[global_b] = (uint8_t)idx;
-
-        /* --- 비트 변동 통계 업데이트 (raw 데이터 기준) ---
-         * global_stats: 전체 파일 기준
-         * segment_stats: 현재 segment 기준 (segment flush 시 출력+reset)
-         */
-        bitstats_update(&global_stats,  raw_block_buf, block_bytes);
-        bitstats_update(&segment_stats, raw_block_buf, block_bytes);
-
-        segment_block_count++;
         global_b++;
     }
 
@@ -770,20 +969,40 @@ int compress_file(const char *input_filename,
         const uint8_t *segment_block_ids =
             block_ids + segment_start_block;
         const unsigned char *segment_dev_stream = NULL;
-        if (dev_len_per_block > 0 && dev_stream)
+
+        int    seg_dev_pos_count = 0;
+        size_t seg_dev_len       = 0;
+        size_t seg_base_bytes    = block_bytes;
+
+        if (segment_idx == 0)
         {
-            segment_dev_stream =
-                dev_stream + segment_start_block * dev_len_per_block;
+            /* segment 0 : dev 없음 */
+            seg_dev_pos_count = 0;
+            seg_dev_len       = 0;
+            seg_base_bytes    = block_bytes;
+        }
+        else
+        {
+            seg_dev_pos_count = dev_pos_count_total;
+            seg_dev_len       = dev_len_per_block;
+            seg_base_bytes    = base_bytes_total;
+
+            if (dev_stream && dev_len_per_block > 0)
+            {
+                segment_dev_stream =
+                    dev_stream + segment_start_block * dev_len_per_block;
+            }
         }
 
         if (write_ddp1_segment(output_filename,
                                segment_idx,
                                block_bytes,
+                               seg_base_bytes,
                                num_fields,
                                field_sizes,
-                               g_num_dev_positions,
-                               g_dev_positions,
-                               dev_len_per_block,
+                               seg_dev_pos_count,
+                               (seg_dev_pos_count > 0) ? g_dev_positions : NULL,
+                               seg_dev_len,
                                &dict,
                                segment_block_ids,
                                segment_dev_stream,
@@ -791,49 +1010,43 @@ int compress_file(const char *input_filename,
         {
             fprintf(stderr, "Failed to write final segment %d\n", segment_idx);
             free(block_buf);
+            free(base_buf);
             free(dev_buf);
             free(dev_stream);
             free(block_ids);
-            free(raw_block_buf);
-            bitstats_free(&global_stats);
-            bitstats_free(&segment_stats);
             dict_free(&dict);
+            free(is_dev_bit);
             return 1;
         }
-
-        /* 마지막 세그먼트 비트 통계 출력 */
-        char label[64];
-        snprintf(label, sizeof(label), "segment %d", segment_idx);
-        bitstats_print(&segment_stats, label, stderr);
-        /* segment_stats는 곧 free될 예정이라 reset은 필요 없음 */
     }
 
     free(block_buf);
+    free(base_buf);
     free(dev_buf);
     free(dev_stream);
     free(block_ids);
-    free(raw_block_buf);
     dict_free(&dict);
+    free(is_dev_bit);
 
-    /* 전체(global) 비트 변동 통계 출력 */
-    bitstats_print(&global_stats, "global", stderr);
-    bitstats_free(&global_stats);
-    bitstats_free(&segment_stats);
+    /* 전역 dev_positions는 여기서 free할 수도 있고, 재사용할 수도 있음.
+       일단 한 번만 쓰는 용도라고 보고 free. */
+    free(g_dev_positions);
+    g_dev_positions     = NULL;
+    g_num_dev_positions = 0;
 
     fprintf(stderr,
-            "Compressed (DDP1 multi, segmented, bit-deviation): "
-            "used_bytes=%zu, block_bytes=%zu, total_blocks=%zu, "
-            "dev_len_per_block=%zu (bytes), dev_pos_count=%d (bits), segments=%d\n",
-            used_bytes, block_bytes, num_blocks_total,
-            dev_len_per_block, g_num_dev_positions, segment_idx + 1);
+            "Compressed (segmented, segment0=pure dedup, segment>=1=base/dev): "
+            "used_bytes=%zu, block_bytes=%zu, total_blocks=%zu\n",
+            used_bytes, block_bytes, num_blocks_total);
 
     return 0;
 }
 
 /* ============================================================
  * Decompression
- *   - 한 번에 하나의 segment 파일만 복원
- *   - 즉, output.ddp, output.ddp.seg1, ... 각각 따로 decompress_file() 호출
+ *   - 각 segment 파일을 개별적으로 복원
+ *   - segment 0 : dev_pos_count=0 → 순수 dedup
+ *   - segment>=1: dev_pos_count>0 → base/dev 합쳐 복원
  * ============================================================ */
 
 int decompress_file(const char *input_filename,
@@ -869,9 +1082,9 @@ int decompress_file(const char *input_filename,
     uint32_t dev_len_u32;
 
     if (!read_u32_le(fp, &block_bytes_u32) ||
-        !read_u32_le(fp, &num_fields_u32) ||
-        !read_u32_le(fp, &dict_size_u32) ||
-        !read_u32_le(fp, &num_blocks_u32) ||
+        !read_u32_le(fp, &num_fields_u32)  ||
+        !read_u32_le(fp, &dict_size_u32)   ||
+        !read_u32_le(fp, &num_blocks_u32)  ||
         !read_u32_le(fp, &dev_pos_count_u32) ||
         !read_u32_le(fp, &dev_len_u32))
     {
@@ -886,8 +1099,8 @@ int decompress_file(const char *input_filename,
     int    num_fields        = (int)num_fields_u32;
     size_t dict_size         = (size_t)dict_size_u32;
     size_t num_blocks        = (size_t)num_blocks_u32;
-    int    dev_pos_count     = (int)dev_pos_count_u32;   /* #bits */
-    size_t dev_len_per_block = (size_t)dev_len_u32;      /* bytes */
+    int    dev_pos_count     = (int)dev_pos_count_u32; /* #bits */
+    size_t dev_len_per_block = (size_t)dev_len_u32;    /* bytes */
 
     if (num_fields <= 0)
     {
@@ -909,6 +1122,10 @@ int decompress_file(const char *input_filename,
         fclose(fp);
         return 1;
     }
+
+    size_t block_bits   = block_bytes * 8u;
+    size_t base_bits    = block_bits - (size_t)dev_pos_count;
+    size_t base_bytes   = (size_t)((base_bits + 7) / 8u); /* segment 0이면 block_bytes와 같음 */
 
     /* field_sizes 읽기 */
     int *field_sizes = (int *)malloc(sizeof(int) * num_fields);
@@ -954,7 +1171,6 @@ int decompress_file(const char *input_filename,
             return 1;
         }
 
-        size_t block_bits = block_bytes * 8;
         for (int i = 0; i < dev_pos_count; ++i)
         {
             uint32_t v;
@@ -989,27 +1205,54 @@ int decompress_file(const char *input_filename,
         }
     }
 
-    /* dictionary 읽기 */
+    /* dev 여부 / index 테이블 (segment>=1에서만 사용) */
+    uint8_t *is_dev_bit = NULL;
+    int     *dev_index  = NULL;
+    if (dev_pos_count > 0)
+    {
+        is_dev_bit = build_is_dev_bit_table(dev_positions,
+                                            dev_pos_count,
+                                            block_bits);
+        dev_index  = build_dev_index_table(dev_positions,
+                                           dev_pos_count,
+                                           block_bits);
+        if (!is_dev_bit || !dev_index)
+        {
+            fprintf(stderr, "Failed to build dev tables (dec)\n");
+            free(is_dev_bit);
+            free(dev_index);
+            free(dev_positions);
+            free(field_sizes);
+            fclose(fp);
+            return 1;
+        }
+    }
+
+    /* dictionary 읽기 (base_bytes 크기) */
     Dictionary dict;
-    dict_init(&dict, block_bytes);
+    dict_init(&dict, base_bytes);
 
     for (size_t i = 0; i < dict_size; ++i)
     {
-        unsigned char *buf = (unsigned char *)malloc(block_bytes);
+        unsigned char *buf = (unsigned char *)malloc(base_bytes);
         if (!buf)
         {
             fprintf(stderr, "Failed to allocate block buffer (dict read, multi)\n");
+            free(is_dev_bit);
+            free(dev_index);
             free(dev_positions);
             free(field_sizes);
             dict_free(&dict);
             fclose(fp);
             return 1;
         }
-        size_t n = fread(buf, 1, block_bytes, fp);
-        if (n != block_bytes)
+        size_t n = fread(buf, 1, base_bytes, fp);
+        if (n != base_bytes)
         {
             fprintf(stderr, "Failed to read dictionary block %zu (multi)\n", i);
             free(buf);
+            free(is_dev_bit);
+            free(dev_index);
             free(dev_positions);
             free(field_sizes);
             dict_free(&dict);
@@ -1025,6 +1268,8 @@ int decompress_file(const char *input_filename,
     if (!block_ids)
     {
         fprintf(stderr, "Failed to allocate block_ids (multi dec)\n");
+        free(is_dev_bit);
+        free(dev_index);
         free(dev_positions);
         free(field_sizes);
         dict_free(&dict);
@@ -1039,6 +1284,8 @@ int decompress_file(const char *input_filename,
         {
             fprintf(stderr, "Failed to read 1-byte block id %zu (multi dec)\n", b);
             free(block_ids);
+            free(is_dev_bit);
+            free(dev_index);
             free(dev_positions);
             free(field_sizes);
             dict_free(&dict);
@@ -1048,7 +1295,7 @@ int decompress_file(const char *input_filename,
         block_ids[b] = (uint8_t)c;
     }
 
-    /* deviation stream 읽기 (bit-packed) */
+    /* deviation stream 읽기 (segment 0이면 dev_len_per_block=0 → skip) */
     size_t dev_total_bytes = num_blocks * dev_len_per_block;
     unsigned char *dev_stream = NULL;
     if (dev_total_bytes > 0)
@@ -1058,6 +1305,8 @@ int decompress_file(const char *input_filename,
         {
             fprintf(stderr, "Failed to allocate dev_stream (multi dec)\n");
             free(block_ids);
+            free(is_dev_bit);
+            free(dev_index);
             free(dev_positions);
             free(field_sizes);
             dict_free(&dict);
@@ -1070,6 +1319,8 @@ int decompress_file(const char *input_filename,
             fprintf(stderr, "Failed to read deviation stream (multi dec)\n");
             free(dev_stream);
             free(block_ids);
+            free(is_dev_bit);
+            free(dev_index);
             free(dev_positions);
             free(field_sizes);
             dict_free(&dict);
@@ -1091,6 +1342,8 @@ int decompress_file(const char *input_filename,
         free(tmp);
         free(dev_stream);
         free(block_ids);
+        free(is_dev_bit);
+        free(dev_index);
         free(dev_positions);
         free(field_sizes);
         dict_free(&dict);
@@ -1108,6 +1361,8 @@ int decompress_file(const char *input_filename,
             free(tmp);
             free(dev_stream);
             free(block_ids);
+            free(is_dev_bit);
+            free(dev_index);
             free(dev_positions);
             free(field_sizes);
             dict_free(&dict);
@@ -1115,39 +1370,44 @@ int decompress_file(const char *input_filename,
         }
 
         const unsigned char *base_block = dict.blocks[id];
-        const unsigned char *dev_ptr = (dev_stream && dev_len_per_block > 0)
-                                           ? (dev_stream + b * dev_len_per_block)
-                                           : NULL;
 
-        if (dev_ptr && dev_pos_count > 0)
+        if (dev_pos_count == 0)
         {
-            size_t used_dev = merge_base_and_deviation_by_pos(
-                base_block,
-                block_bytes,
-                dev_positions,
-                dev_pos_count,
-                dev_ptr,
-                dev_len_per_block,
-                tmp);
+            /* segment 0: dev 없음 → base_block은 full block */
+            memcpy(tmp, base_block, block_bytes);
+        }
+        else
+        {
+            const unsigned char *dev_ptr =
+                (dev_stream && dev_len_per_block > 0)
+                ? (dev_stream + b * dev_len_per_block)
+                : NULL;
 
-            if (used_dev != (size_t)dev_pos_count)
+            if (!dev_ptr)
             {
-                fprintf(stderr,
-                        "merge used_dev=%zu != dev_pos_count=%d (multi dec)\n",
-                        used_dev, dev_pos_count);
+                fprintf(stderr, "Missing dev_ptr for block %zu (multi dec)\n", b);
                 free(out);
                 free(tmp);
                 free(dev_stream);
                 free(block_ids);
+                free(is_dev_bit);
+                free(dev_index);
                 free(dev_positions);
                 free(field_sizes);
                 dict_free(&dict);
                 return 1;
             }
-        }
-        else
-        {
-            memcpy(tmp, base_block, block_bytes);
+
+            merge_base_and_dev_compact(
+                base_block,
+                base_bytes,
+                dev_ptr,
+                dev_len_per_block,
+                block_bytes,
+                is_dev_bit,
+                dev_index,
+                dev_pos_count,
+                tmp);
         }
 
         size_t offset = b * block_bytes;
@@ -1158,6 +1418,8 @@ int decompress_file(const char *input_filename,
             free(tmp);
             free(dev_stream);
             free(block_ids);
+            free(is_dev_bit);
+            free(dev_index);
             free(dev_positions);
             free(field_sizes);
             dict_free(&dict);
@@ -1173,6 +1435,8 @@ int decompress_file(const char *input_filename,
     free(tmp);
     free(dev_stream);
     free(block_ids);
+    free(is_dev_bit);
+    free(dev_index);
     free(dev_positions);
     free(field_sizes);
     dict_free(&dict);
