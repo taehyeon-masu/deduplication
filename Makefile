@@ -9,6 +9,7 @@ BIN_PACK  := pack_trhp
 SRCS_DEDUP := main.c \
               $(SRC_DIR)/bin_io.c \
               $(SRC_DIR)/compressor.c \
+			  $(SRC_DIR)/bitstats.c \
               $(SRC_DIR)/dictionary.c
 
 SRCS_PACK  := $(SRC_DIR)/pack_trhp.c
