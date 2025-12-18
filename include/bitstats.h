@@ -21,6 +21,7 @@ typedef struct BitStats {
 
 BitStats *bitstats_create(size_t num_bits);
 void      bitstats_free(BitStats *bs);
+void      bitstats_reset(BitStats *bs);
 
 /* block_bytes는 실제 블록 바이트 수 (num_bits == block_bytes * 8 가정) */
 void bitstats_update_block(BitStats *bs,

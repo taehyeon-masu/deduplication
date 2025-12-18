@@ -1,0 +1,421 @@
+[segment 0] wrote './results/multi_TRLP.ddp': blocks=586, dict_size=255, dev_len_per_block=0 (bytes), dev_pos_count=0 (bits)
+[decide_dev_pos_count_for_segment] next_seg=1, block_bits=128, prev_seg_blocks=586, hot_ratio=0.1797, avg_changes_per_block=6.7543, change_rate=0.0528
+[segment 0 -> 1] next_dev_pos_count=64 (selected=64), cur_dev_len=8 bytes
+[segment 1] wrote './results/multi_TRLP.ddp.seg1': blocks=810, dict_size=255, dev_len_per_block=8 (bytes), dev_pos_count=64 (bits)
+[decide_dev_pos_count_for_segment] next_seg=2, block_bits=128, prev_seg_blocks=810, hot_ratio=0.1641, avg_changes_per_block=7.3630, change_rate=0.0575
+[segment 1 -> 2] next_dev_pos_count=65 (selected=65), cur_dev_len=9 bytes
+[segment 2] wrote './results/multi_TRLP.ddp.seg2': blocks=525, dict_size=255, dev_len_per_block=9 (bytes), dev_pos_count=65 (bits)
+[decide_dev_pos_count_for_segment] next_seg=3, block_bits=128, prev_seg_blocks=525, hot_ratio=0.1719, avg_changes_per_block=8.0895, change_rate=0.0632
+[segment 2 -> 3] next_dev_pos_count=66 (selected=66), cur_dev_len=9 bytes
+[segment 3] wrote './results/multi_TRLP.ddp.seg3': blocks=826, dict_size=255, dev_len_per_block=9 (bytes), dev_pos_count=66 (bits)
+[decide_dev_pos_count_for_segment] next_seg=4, block_bits=128, prev_seg_blocks=826, hot_ratio=0.1641, avg_changes_per_block=6.9806, change_rate=0.0545
+[segment 3 -> 4] next_dev_pos_count=67 (selected=67), cur_dev_len=9 bytes
+[segment 4] wrote './results/multi_TRLP.ddp.seg4': blocks=596, dict_size=255, dev_len_per_block=9 (bytes), dev_pos_count=67 (bits)
+[decide_dev_pos_count_for_segment] next_seg=5, block_bits=128, prev_seg_blocks=596, hot_ratio=0.1797, avg_changes_per_block=7.8339, change_rate=0.0612
+[segment 4 -> 5] next_dev_pos_count=68 (selected=68), cur_dev_len=9 bytes
+[segment 5] wrote './results/multi_TRLP.ddp.seg5': blocks=681, dict_size=255, dev_len_per_block=9 (bytes), dev_pos_count=68 (bits)
+[decide_dev_pos_count_for_segment] next_seg=6, block_bits=128, prev_seg_blocks=681, hot_ratio=0.2969, avg_changes_per_block=7.6021, change_rate=0.0594
+[segment 5 -> 6] next_dev_pos_count=69 (selected=69), cur_dev_len=9 bytes
+[segment 6] wrote './results/multi_TRLP.ddp.seg6': blocks=700, dict_size=255, dev_len_per_block=9 (bytes), dev_pos_count=69 (bits)
+[decide_dev_pos_count_for_segment] next_seg=7, block_bits=128, prev_seg_blocks=700, hot_ratio=0.1719, avg_changes_per_block=7.1800, change_rate=0.0561
+[segment 6 -> 7] next_dev_pos_count=70 (selected=70), cur_dev_len=9 bytes
+[segment 7] wrote './results/multi_TRLP.ddp.seg7': blocks=579, dict_size=255, dev_len_per_block=9 (bytes), dev_pos_count=70 (bits)
+[decide_dev_pos_count_for_segment] next_seg=8, block_bits=128, prev_seg_blocks=579, hot_ratio=0.2031, avg_changes_per_block=6.6805, change_rate=0.0522
+[segment 7 -> 8] next_dev_pos_count=71 (selected=71), cur_dev_len=9 bytes
+[segment 8] wrote './results/multi_TRLP.ddp.seg8': blocks=501, dict_size=255, dev_len_per_block=9 (bytes), dev_pos_count=71 (bits)
+[decide_dev_pos_count_for_segment] next_seg=9, block_bits=128, prev_seg_blocks=501, hot_ratio=0.1797, avg_changes_per_block=8.4691, change_rate=0.0662
+[segment 8 -> 9] next_dev_pos_count=72 (selected=72), cur_dev_len=9 bytes
+[segment 9] wrote './results/multi_TRLP.ddp.seg9': blocks=709, dict_size=255, dev_len_per_block=9 (bytes), dev_pos_count=72 (bits)
+[decide_dev_pos_count_for_segment] next_seg=10, block_bits=128, prev_seg_blocks=709, hot_ratio=0.1719, avg_changes_per_block=8.9464, change_rate=0.0699
+[segment 9 -> 10] next_dev_pos_count=73 (selected=73), cur_dev_len=10 bytes
+[segment 10] wrote './results/multi_TRLP.ddp.seg10': blocks=661, dict_size=255, dev_len_per_block=10 (bytes), dev_pos_count=73 (bits)
+[decide_dev_pos_count_for_segment] next_seg=11, block_bits=128, prev_seg_blocks=661, hot_ratio=0.2188, avg_changes_per_block=7.9440, change_rate=0.0621
+[segment 10 -> 11] next_dev_pos_count=74 (selected=74), cur_dev_len=10 bytes
+[segment 11] wrote './results/multi_TRLP.ddp.seg11': blocks=527, dict_size=255, dev_len_per_block=10 (bytes), dev_pos_count=74 (bits)
+[decide_dev_pos_count_for_segment] next_seg=12, block_bits=128, prev_seg_blocks=527, hot_ratio=0.3125, avg_changes_per_block=8.4194, change_rate=0.0658
+[segment 11 -> 12] next_dev_pos_count=75 (selected=75), cur_dev_len=10 bytes
+[segment 12] wrote './results/multi_TRLP.ddp.seg12': blocks=911, dict_size=255, dev_len_per_block=10 (bytes), dev_pos_count=75 (bits)
+[decide_dev_pos_count_for_segment] next_seg=13, block_bits=128, prev_seg_blocks=911, hot_ratio=0.2188, avg_changes_per_block=7.9166, change_rate=0.0618
+[segment 12 -> 13] next_dev_pos_count=76 (selected=76), cur_dev_len=10 bytes
+[segment 13] wrote './results/multi_TRLP.ddp.seg13': blocks=626, dict_size=255, dev_len_per_block=10 (bytes), dev_pos_count=76 (bits)
+[decide_dev_pos_count_for_segment] next_seg=14, block_bits=128, prev_seg_blocks=626, hot_ratio=0.1953, avg_changes_per_block=9.1422, change_rate=0.0714
+[segment 13 -> 14] next_dev_pos_count=77 (selected=77), cur_dev_len=10 bytes
+[segment 14] wrote './results/multi_TRLP.ddp.seg14': blocks=426, dict_size=255, dev_len_per_block=10 (bytes), dev_pos_count=77 (bits)
+[decide_dev_pos_count_for_segment] next_seg=15, block_bits=128, prev_seg_blocks=426, hot_ratio=0.1953, avg_changes_per_block=8.8239, change_rate=0.0689
+[segment 14 -> 15] next_dev_pos_count=78 (selected=78), cur_dev_len=10 bytes
+[segment 15] wrote './results/multi_TRLP.ddp.seg15': blocks=782, dict_size=255, dev_len_per_block=10 (bytes), dev_pos_count=78 (bits)
+[decide_dev_pos_count_for_segment] next_seg=16, block_bits=128, prev_seg_blocks=782, hot_ratio=0.2422, avg_changes_per_block=7.6496, change_rate=0.0598
+[segment 15 -> 16] next_dev_pos_count=79 (selected=79), cur_dev_len=10 bytes
+[segment 16] wrote './results/multi_TRLP.ddp.seg16': blocks=768, dict_size=255, dev_len_per_block=10 (bytes), dev_pos_count=79 (bits)
+[decide_dev_pos_count_for_segment] next_seg=17, block_bits=128, prev_seg_blocks=768, hot_ratio=0.1875, avg_changes_per_block=8.5898, change_rate=0.0671
+[segment 16 -> 17] next_dev_pos_count=80 (selected=80), cur_dev_len=10 bytes
+[segment 17] wrote './results/multi_TRLP.ddp.seg17': blocks=718, dict_size=255, dev_len_per_block=10 (bytes), dev_pos_count=80 (bits)
+[decide_dev_pos_count_for_segment] next_seg=18, block_bits=128, prev_seg_blocks=718, hot_ratio=0.2422, avg_changes_per_block=9.4568, change_rate=0.0739
+[segment 17 -> 18] next_dev_pos_count=81 (selected=81), cur_dev_len=11 bytes
+[segment 18] wrote './results/multi_TRLP.ddp.seg18': blocks=706, dict_size=255, dev_len_per_block=11 (bytes), dev_pos_count=81 (bits)
+[decide_dev_pos_count_for_segment] next_seg=19, block_bits=128, prev_seg_blocks=706, hot_ratio=0.2344, avg_changes_per_block=8.9674, change_rate=0.0701
+[segment 18 -> 19] next_dev_pos_count=82 (selected=82), cur_dev_len=11 bytes
+[segment 19] wrote './results/multi_TRLP.ddp.seg19': blocks=351, dict_size=255, dev_len_per_block=11 (bytes), dev_pos_count=82 (bits)
+[decide_dev_pos_count_for_segment] next_seg=20, block_bits=128, prev_seg_blocks=351, hot_ratio=0.3125, avg_changes_per_block=8.9345, change_rate=0.0698
+[segment 19 -> 20] next_dev_pos_count=83 (selected=83), cur_dev_len=11 bytes
+[segment 20] wrote './results/multi_TRLP.ddp.seg20': blocks=333, dict_size=255, dev_len_per_block=11 (bytes), dev_pos_count=83 (bits)
+[decide_dev_pos_count_for_segment] next_seg=21, block_bits=128, prev_seg_blocks=333, hot_ratio=0.2500, avg_changes_per_block=9.5976, change_rate=0.0750
+[segment 20 -> 21] next_dev_pos_count=84 (selected=84), cur_dev_len=11 bytes
+[segment 21] wrote './results/multi_TRLP.ddp.seg21': blocks=333, dict_size=255, dev_len_per_block=11 (bytes), dev_pos_count=84 (bits)
+[decide_dev_pos_count_for_segment] next_seg=22, block_bits=128, prev_seg_blocks=333, hot_ratio=0.3047, avg_changes_per_block=8.7988, change_rate=0.0687
+[segment 21 -> 22] next_dev_pos_count=85 (selected=85), cur_dev_len=11 bytes
+[segment 22] wrote './results/multi_TRLP.ddp.seg22': blocks=353, dict_size=255, dev_len_per_block=11 (bytes), dev_pos_count=85 (bits)
+[decide_dev_pos_count_for_segment] next_seg=23, block_bits=128, prev_seg_blocks=353, hot_ratio=0.3906, avg_changes_per_block=8.7450, change_rate=0.0683
+[segment 22 -> 23] next_dev_pos_count=86 (selected=86), cur_dev_len=11 bytes
+[segment 23] wrote './results/multi_TRLP.ddp.seg23': blocks=342, dict_size=255, dev_len_per_block=11 (bytes), dev_pos_count=86 (bits)
+[decide_dev_pos_count_for_segment] next_seg=24, block_bits=128, prev_seg_blocks=342, hot_ratio=0.3594, avg_changes_per_block=9.1140, change_rate=0.0712
+[segment 23 -> 24] next_dev_pos_count=87 (selected=87), cur_dev_len=11 bytes
+[segment 24] wrote './results/multi_TRLP.ddp.seg24': blocks=287, dict_size=255, dev_len_per_block=11 (bytes), dev_pos_count=87 (bits)
+[decide_dev_pos_count_for_segment] next_seg=25, block_bits=128, prev_seg_blocks=287, hot_ratio=0.3438, avg_changes_per_block=9.2718, change_rate=0.0724
+[segment 24 -> 25] next_dev_pos_count=88 (selected=88), cur_dev_len=11 bytes
+[segment 25] wrote './results/multi_TRLP.ddp.seg25': blocks=285, dict_size=255, dev_len_per_block=11 (bytes), dev_pos_count=88 (bits)
+[decide_dev_pos_count_for_segment] next_seg=26, block_bits=128, prev_seg_blocks=285, hot_ratio=0.2969, avg_changes_per_block=9.4667, change_rate=0.0740
+[segment 25 -> 26] next_dev_pos_count=89 (selected=89), cur_dev_len=12 bytes
+[segment 26] wrote './results/multi_TRLP.ddp.seg26': blocks=322, dict_size=255, dev_len_per_block=12 (bytes), dev_pos_count=89 (bits)
+[decide_dev_pos_count_for_segment] next_seg=27, block_bits=128, prev_seg_blocks=322, hot_ratio=0.3438, avg_changes_per_block=8.9379, change_rate=0.0698
+[segment 26 -> 27] next_dev_pos_count=90 (selected=90), cur_dev_len=12 bytes
+[segment 27] wrote './results/multi_TRLP.ddp.seg27': blocks=340, dict_size=255, dev_len_per_block=12 (bytes), dev_pos_count=90 (bits)
+[decide_dev_pos_count_for_segment] next_seg=28, block_bits=128, prev_seg_blocks=340, hot_ratio=0.3281, avg_changes_per_block=7.3941, change_rate=0.0578
+[segment 27 -> 28] next_dev_pos_count=91 (selected=91), cur_dev_len=12 bytes
+[segment 28] wrote './results/multi_TRLP.ddp.seg28': blocks=378, dict_size=255, dev_len_per_block=12 (bytes), dev_pos_count=91 (bits)
+[decide_dev_pos_count_for_segment] next_seg=29, block_bits=128, prev_seg_blocks=378, hot_ratio=0.2812, avg_changes_per_block=7.0503, change_rate=0.0551
+[segment 28 -> 29] next_dev_pos_count=92 (selected=92), cur_dev_len=12 bytes
+[segment 29] wrote './results/multi_TRLP.ddp.seg29': blocks=385, dict_size=255, dev_len_per_block=12 (bytes), dev_pos_count=92 (bits)
+[decide_dev_pos_count_for_segment] next_seg=30, block_bits=128, prev_seg_blocks=385, hot_ratio=0.2500, avg_changes_per_block=7.9584, change_rate=0.0622
+[segment 29 -> 30] next_dev_pos_count=93 (selected=93), cur_dev_len=12 bytes
+[segment 30] wrote './results/multi_TRLP.ddp.seg30': blocks=328, dict_size=255, dev_len_per_block=12 (bytes), dev_pos_count=93 (bits)
+[decide_dev_pos_count_for_segment] next_seg=31, block_bits=128, prev_seg_blocks=328, hot_ratio=0.3594, avg_changes_per_block=7.9085, change_rate=0.0618
+[segment 30 -> 31] next_dev_pos_count=94 (selected=94), cur_dev_len=12 bytes
+[segment 31] wrote './results/multi_TRLP.ddp.seg31': blocks=262, dict_size=255, dev_len_per_block=12 (bytes), dev_pos_count=94 (bits)
+[decide_dev_pos_count_for_segment] next_seg=32, block_bits=128, prev_seg_blocks=262, hot_ratio=0.3203, avg_changes_per_block=13.7443, change_rate=0.1074
+[segment 31 -> 32] next_dev_pos_count=95 (selected=95), cur_dev_len=12 bytes
+[segment 32] wrote './results/multi_TRLP.ddp.seg32': blocks=285, dict_size=255, dev_len_per_block=12 (bytes), dev_pos_count=95 (bits)
+[decide_dev_pos_count_for_segment] next_seg=33, block_bits=128, prev_seg_blocks=285, hot_ratio=0.2500, avg_changes_per_block=12.7649, change_rate=0.0997
+[segment 32 -> 33] next_dev_pos_count=96 (selected=96), cur_dev_len=12 bytes
+[segment 33] wrote './results/multi_TRLP.ddp.seg33': blocks=300, dict_size=255, dev_len_per_block=12 (bytes), dev_pos_count=96 (bits)
+[decide_dev_pos_count_for_segment] next_seg=34, block_bits=128, prev_seg_blocks=300, hot_ratio=0.2656, avg_changes_per_block=12.1500, change_rate=0.0949
+[segment 33 -> 34] next_dev_pos_count=97 (selected=97), cur_dev_len=13 bytes
+[segment 34] wrote './results/multi_TRLP.ddp.seg34': blocks=260, dict_size=255, dev_len_per_block=13 (bytes), dev_pos_count=97 (bits)
+[decide_dev_pos_count_for_segment] next_seg=35, block_bits=128, prev_seg_blocks=260, hot_ratio=0.3516, avg_changes_per_block=13.7423, change_rate=0.1074
+[segment 34 -> 35] next_dev_pos_count=98 (selected=98), cur_dev_len=13 bytes
+[segment 35] wrote './results/multi_TRLP.ddp.seg35': blocks=276, dict_size=255, dev_len_per_block=13 (bytes), dev_pos_count=98 (bits)
+[decide_dev_pos_count_for_segment] next_seg=36, block_bits=128, prev_seg_blocks=276, hot_ratio=0.3672, avg_changes_per_block=12.0616, change_rate=0.0942
+[segment 35 -> 36] next_dev_pos_count=99 (selected=99), cur_dev_len=13 bytes
+[segment 36] wrote './results/multi_TRLP.ddp.seg36': blocks=261, dict_size=255, dev_len_per_block=13 (bytes), dev_pos_count=99 (bits)
+[decide_dev_pos_count_for_segment] next_seg=37, block_bits=128, prev_seg_blocks=261, hot_ratio=0.3516, avg_changes_per_block=11.9617, change_rate=0.0935
+[segment 36 -> 37] next_dev_pos_count=100 (selected=100), cur_dev_len=13 bytes
+[segment 37] wrote './results/multi_TRLP.ddp.seg37': blocks=263, dict_size=255, dev_len_per_block=13 (bytes), dev_pos_count=100 (bits)
+[decide_dev_pos_count_for_segment] next_seg=38, block_bits=128, prev_seg_blocks=263, hot_ratio=0.3594, avg_changes_per_block=12.4867, change_rate=0.0976
+[segment 37 -> 38] next_dev_pos_count=101 (selected=101), cur_dev_len=13 bytes
+[segment 38] wrote './results/multi_TRLP.ddp.seg38': blocks=274, dict_size=255, dev_len_per_block=13 (bytes), dev_pos_count=101 (bits)
+[decide_dev_pos_count_for_segment] next_seg=39, block_bits=128, prev_seg_blocks=274, hot_ratio=0.2969, avg_changes_per_block=12.1241, change_rate=0.0947
+[segment 38 -> 39] next_dev_pos_count=102 (selected=102), cur_dev_len=13 bytes
+[segment 39] wrote './results/multi_TRLP.ddp.seg39': blocks=275, dict_size=255, dev_len_per_block=13 (bytes), dev_pos_count=102 (bits)
+[decide_dev_pos_count_for_segment] next_seg=40, block_bits=128, prev_seg_blocks=275, hot_ratio=0.3906, avg_changes_per_block=11.3236, change_rate=0.0885
+[segment 39 -> 40] next_dev_pos_count=103 (selected=103), cur_dev_len=13 bytes
+[segment 40] wrote './results/multi_TRLP.ddp.seg40': blocks=271, dict_size=255, dev_len_per_block=13 (bytes), dev_pos_count=103 (bits)
+[decide_dev_pos_count_for_segment] next_seg=41, block_bits=128, prev_seg_blocks=271, hot_ratio=0.2891, avg_changes_per_block=11.2509, change_rate=0.0879
+[segment 40 -> 41] next_dev_pos_count=104 (selected=104), cur_dev_len=13 bytes
+[segment 41] wrote './results/multi_TRLP.ddp.seg41': blocks=261, dict_size=255, dev_len_per_block=13 (bytes), dev_pos_count=104 (bits)
+[decide_dev_pos_count_for_segment] next_seg=42, block_bits=128, prev_seg_blocks=261, hot_ratio=0.3750, avg_changes_per_block=11.7011, change_rate=0.0914
+[segment 41 -> 42] next_dev_pos_count=105 (selected=105), cur_dev_len=14 bytes
+[segment 42] wrote './results/multi_TRLP.ddp.seg42': blocks=266, dict_size=255, dev_len_per_block=14 (bytes), dev_pos_count=105 (bits)
+[decide_dev_pos_count_for_segment] next_seg=43, block_bits=128, prev_seg_blocks=266, hot_ratio=0.2969, avg_changes_per_block=12.0338, change_rate=0.0940
+[segment 42 -> 43] next_dev_pos_count=106 (selected=106), cur_dev_len=14 bytes
+[segment 43] wrote './results/multi_TRLP.ddp.seg43': blocks=263, dict_size=255, dev_len_per_block=14 (bytes), dev_pos_count=106 (bits)
+[decide_dev_pos_count_for_segment] next_seg=44, block_bits=128, prev_seg_blocks=263, hot_ratio=0.3594, avg_changes_per_block=11.5095, change_rate=0.0899
+[segment 43 -> 44] next_dev_pos_count=107 (selected=107), cur_dev_len=14 bytes
+[segment 44] wrote './results/multi_TRLP.ddp.seg44': blocks=266, dict_size=255, dev_len_per_block=14 (bytes), dev_pos_count=107 (bits)
+[decide_dev_pos_count_for_segment] next_seg=45, block_bits=128, prev_seg_blocks=266, hot_ratio=0.3594, avg_changes_per_block=11.0150, change_rate=0.0861
+[segment 44 -> 45] next_dev_pos_count=108 (selected=108), cur_dev_len=14 bytes
+[segment 45] wrote './results/multi_TRLP.ddp.seg45': blocks=265, dict_size=255, dev_len_per_block=14 (bytes), dev_pos_count=108 (bits)
+[decide_dev_pos_count_for_segment] next_seg=46, block_bits=128, prev_seg_blocks=265, hot_ratio=0.3047, avg_changes_per_block=12.1925, change_rate=0.0953
+[segment 45 -> 46] next_dev_pos_count=109 (selected=109), cur_dev_len=14 bytes
+[segment 46] wrote './results/multi_TRLP.ddp.seg46': blocks=283, dict_size=255, dev_len_per_block=14 (bytes), dev_pos_count=109 (bits)
+[decide_dev_pos_count_for_segment] next_seg=47, block_bits=128, prev_seg_blocks=283, hot_ratio=0.2891, avg_changes_per_block=10.8481, change_rate=0.0848
+[segment 46 -> 47] next_dev_pos_count=110 (selected=110), cur_dev_len=14 bytes
+[segment 47] wrote './results/multi_TRLP.ddp.seg47': blocks=262, dict_size=255, dev_len_per_block=14 (bytes), dev_pos_count=110 (bits)
+[decide_dev_pos_count_for_segment] next_seg=48, block_bits=128, prev_seg_blocks=262, hot_ratio=0.3594, avg_changes_per_block=11.9809, change_rate=0.0936
+[segment 47 -> 48] next_dev_pos_count=111 (selected=111), cur_dev_len=14 bytes
+[segment 48] wrote './results/multi_TRLP.ddp.seg48': blocks=264, dict_size=255, dev_len_per_block=14 (bytes), dev_pos_count=111 (bits)
+[decide_dev_pos_count_for_segment] next_seg=49, block_bits=128, prev_seg_blocks=264, hot_ratio=0.3750, avg_changes_per_block=14.1098, change_rate=0.1102
+[segment 48 -> 49] next_dev_pos_count=112 (selected=112), cur_dev_len=14 bytes
+[segment 49] wrote './results/multi_TRLP.ddp.seg49': blocks=275, dict_size=255, dev_len_per_block=14 (bytes), dev_pos_count=112 (bits)
+[decide_dev_pos_count_for_segment] next_seg=50, block_bits=128, prev_seg_blocks=275, hot_ratio=0.3750, avg_changes_per_block=12.8618, change_rate=0.1005
+[segment 49 -> 50] next_dev_pos_count=113 (selected=113), cur_dev_len=15 bytes
+[segment 50] wrote './results/multi_TRLP.ddp.seg50': blocks=270, dict_size=255, dev_len_per_block=15 (bytes), dev_pos_count=113 (bits)
+[decide_dev_pos_count_for_segment] next_seg=51, block_bits=128, prev_seg_blocks=270, hot_ratio=0.3594, avg_changes_per_block=10.7481, change_rate=0.0840
+[segment 50 -> 51] next_dev_pos_count=114 (selected=114), cur_dev_len=15 bytes
+[segment 51] wrote './results/multi_TRLP.ddp.seg51': blocks=281, dict_size=255, dev_len_per_block=15 (bytes), dev_pos_count=114 (bits)
+[decide_dev_pos_count_for_segment] next_seg=52, block_bits=128, prev_seg_blocks=281, hot_ratio=0.3516, avg_changes_per_block=11.0036, change_rate=0.0860
+[segment 51 -> 52] next_dev_pos_count=115 (selected=115), cur_dev_len=15 bytes
+[segment 52] wrote './results/multi_TRLP.ddp.seg52': blocks=264, dict_size=255, dev_len_per_block=15 (bytes), dev_pos_count=115 (bits)
+[decide_dev_pos_count_for_segment] next_seg=53, block_bits=128, prev_seg_blocks=264, hot_ratio=0.3750, avg_changes_per_block=20.2614, change_rate=0.1583
+[segment 52 -> 53] next_dev_pos_count=116 (selected=116), cur_dev_len=15 bytes
+[segment 53] wrote './results/multi_TRLP.ddp.seg53': blocks=267, dict_size=255, dev_len_per_block=15 (bytes), dev_pos_count=116 (bits)
+[decide_dev_pos_count_for_segment] next_seg=54, block_bits=128, prev_seg_blocks=267, hot_ratio=0.3750, avg_changes_per_block=18.6742, change_rate=0.1459
+[segment 53 -> 54] next_dev_pos_count=117 (selected=117), cur_dev_len=15 bytes
+[segment 54] wrote './results/multi_TRLP.ddp.seg54': blocks=261, dict_size=255, dev_len_per_block=15 (bytes), dev_pos_count=117 (bits)
+[decide_dev_pos_count_for_segment] next_seg=55, block_bits=128, prev_seg_blocks=261, hot_ratio=0.3750, avg_changes_per_block=14.9004, change_rate=0.1164
+[segment 54 -> 55] next_dev_pos_count=118 (selected=118), cur_dev_len=15 bytes
+[segment 55] wrote './results/multi_TRLP.ddp.seg55': blocks=267, dict_size=255, dev_len_per_block=15 (bytes), dev_pos_count=118 (bits)
+[decide_dev_pos_count_for_segment] next_seg=56, block_bits=128, prev_seg_blocks=267, hot_ratio=0.4141, avg_changes_per_block=15.3034, change_rate=0.1196
+[segment 55 -> 56] next_dev_pos_count=119 (selected=119), cur_dev_len=15 bytes
+[segment 56] wrote './results/multi_TRLP.ddp.seg56': blocks=268, dict_size=255, dev_len_per_block=15 (bytes), dev_pos_count=119 (bits)
+[decide_dev_pos_count_for_segment] next_seg=57, block_bits=128, prev_seg_blocks=268, hot_ratio=0.3516, avg_changes_per_block=12.3433, change_rate=0.0964
+[segment 56 -> 57] next_dev_pos_count=120 (selected=120), cur_dev_len=15 bytes
+[segment 57] wrote './results/multi_TRLP.ddp.seg57': blocks=273, dict_size=255, dev_len_per_block=15 (bytes), dev_pos_count=120 (bits)
+[decide_dev_pos_count_for_segment] next_seg=58, block_bits=128, prev_seg_blocks=273, hot_ratio=0.2266, avg_changes_per_block=9.7949, change_rate=0.0765
+[segment 57 -> 58] next_dev_pos_count=121 (selected=121), cur_dev_len=16 bytes
+[segment 58] wrote './results/multi_TRLP.ddp.seg58': blocks=263, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=121 (bits)
+[decide_dev_pos_count_for_segment] next_seg=59, block_bits=128, prev_seg_blocks=263, hot_ratio=0.3438, avg_changes_per_block=11.2586, change_rate=0.0880
+[segment 58 -> 59] next_dev_pos_count=122 (selected=122), cur_dev_len=16 bytes
+[segment 59] wrote './results/multi_TRLP.ddp.seg59': blocks=273, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=122 (bits)
+[decide_dev_pos_count_for_segment] next_seg=60, block_bits=128, prev_seg_blocks=273, hot_ratio=0.3359, avg_changes_per_block=10.7656, change_rate=0.0841
+[segment 59 -> 60] next_dev_pos_count=123 (selected=123), cur_dev_len=16 bytes
+[segment 60] wrote './results/multi_TRLP.ddp.seg60': blocks=264, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=123 (bits)
+[decide_dev_pos_count_for_segment] next_seg=61, block_bits=128, prev_seg_blocks=264, hot_ratio=0.4297, avg_changes_per_block=12.5417, change_rate=0.0980
+[segment 60 -> 61] next_dev_pos_count=124 (selected=124), cur_dev_len=16 bytes
+[segment 61] wrote './results/multi_TRLP.ddp.seg61': blocks=265, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=124 (bits)
+[decide_dev_pos_count_for_segment] next_seg=62, block_bits=128, prev_seg_blocks=265, hot_ratio=0.4297, avg_changes_per_block=17.3660, change_rate=0.1357
+[segment 61 -> 62] next_dev_pos_count=125 (selected=125), cur_dev_len=16 bytes
+[segment 62] wrote './results/multi_TRLP.ddp.seg62': blocks=271, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=125 (bits)
+[decide_dev_pos_count_for_segment] next_seg=63, block_bits=128, prev_seg_blocks=271, hot_ratio=0.3047, avg_changes_per_block=13.6900, change_rate=0.1070
+[segment 62 -> 63] next_dev_pos_count=126 (selected=126), cur_dev_len=16 bytes
+[segment 63] wrote './results/multi_TRLP.ddp.seg63': blocks=267, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=126 (bits)
+[decide_dev_pos_count_for_segment] next_seg=64, block_bits=128, prev_seg_blocks=267, hot_ratio=0.3047, avg_changes_per_block=11.9288, change_rate=0.0932
+[segment 63 -> 64] next_dev_pos_count=127 (selected=127), cur_dev_len=16 bytes
+[segment 64] wrote './results/multi_TRLP.ddp.seg64': blocks=266, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=127 (bits)
+[decide_dev_pos_count_for_segment] next_seg=65, block_bits=128, prev_seg_blocks=266, hot_ratio=0.3125, avg_changes_per_block=11.8722, change_rate=0.0928
+[segment 64 -> 65] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 65] wrote './results/multi_TRLP.ddp.seg65': blocks=261, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=66, block_bits=128, prev_seg_blocks=261, hot_ratio=0.3750, avg_changes_per_block=12.8812, change_rate=0.1006
+[segment 65 -> 66] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 66] wrote './results/multi_TRLP.ddp.seg66': blocks=269, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=67, block_bits=128, prev_seg_blocks=269, hot_ratio=0.4141, avg_changes_per_block=13.5836, change_rate=0.1061
+[segment 66 -> 67] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 67] wrote './results/multi_TRLP.ddp.seg67': blocks=260, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=68, block_bits=128, prev_seg_blocks=260, hot_ratio=0.3750, avg_changes_per_block=13.1577, change_rate=0.1028
+[segment 67 -> 68] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 68] wrote './results/multi_TRLP.ddp.seg68': blocks=255, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=69, block_bits=128, prev_seg_blocks=255, hot_ratio=0.4297, avg_changes_per_block=13.2588, change_rate=0.1036
+[segment 68 -> 69] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 69] wrote './results/multi_TRLP.ddp.seg69': blocks=256, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=70, block_bits=128, prev_seg_blocks=256, hot_ratio=0.3047, avg_changes_per_block=12.8711, change_rate=0.1006
+[segment 69 -> 70] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 70] wrote './results/multi_TRLP.ddp.seg70': blocks=262, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=71, block_bits=128, prev_seg_blocks=262, hot_ratio=0.2969, avg_changes_per_block=11.6908, change_rate=0.0913
+[segment 70 -> 71] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 71] wrote './results/multi_TRLP.ddp.seg71': blocks=269, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=72, block_bits=128, prev_seg_blocks=269, hot_ratio=0.2656, avg_changes_per_block=10.9442, change_rate=0.0855
+[segment 71 -> 72] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 72] wrote './results/multi_TRLP.ddp.seg72': blocks=258, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=73, block_bits=128, prev_seg_blocks=258, hot_ratio=0.2734, avg_changes_per_block=11.2326, change_rate=0.0878
+[segment 72 -> 73] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 73] wrote './results/multi_TRLP.ddp.seg73': blocks=260, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=74, block_bits=128, prev_seg_blocks=260, hot_ratio=0.3203, avg_changes_per_block=11.8115, change_rate=0.0923
+[segment 73 -> 74] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 74] wrote './results/multi_TRLP.ddp.seg74': blocks=258, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=75, block_bits=128, prev_seg_blocks=258, hot_ratio=0.3281, avg_changes_per_block=12.3798, change_rate=0.0967
+[segment 74 -> 75] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 75] wrote './results/multi_TRLP.ddp.seg75': blocks=257, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=76, block_bits=128, prev_seg_blocks=257, hot_ratio=0.3203, avg_changes_per_block=11.2218, change_rate=0.0877
+[segment 75 -> 76] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 76] wrote './results/multi_TRLP.ddp.seg76': blocks=258, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=77, block_bits=128, prev_seg_blocks=258, hot_ratio=0.3359, avg_changes_per_block=12.3411, change_rate=0.0964
+[segment 76 -> 77] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 77] wrote './results/multi_TRLP.ddp.seg77': blocks=265, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=78, block_bits=128, prev_seg_blocks=265, hot_ratio=0.3203, avg_changes_per_block=12.4566, change_rate=0.0973
+[segment 77 -> 78] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 78] wrote './results/multi_TRLP.ddp.seg78': blocks=269, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=79, block_bits=128, prev_seg_blocks=269, hot_ratio=0.2969, avg_changes_per_block=12.1338, change_rate=0.0948
+[segment 78 -> 79] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 79] wrote './results/multi_TRLP.ddp.seg79': blocks=272, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=80, block_bits=128, prev_seg_blocks=272, hot_ratio=0.3203, avg_changes_per_block=12.1324, change_rate=0.0948
+[segment 79 -> 80] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 80] wrote './results/multi_TRLP.ddp.seg80': blocks=260, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=81, block_bits=128, prev_seg_blocks=260, hot_ratio=0.3750, avg_changes_per_block=11.0615, change_rate=0.0864
+[segment 80 -> 81] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 81] wrote './results/multi_TRLP.ddp.seg81': blocks=267, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=82, block_bits=128, prev_seg_blocks=267, hot_ratio=0.2891, avg_changes_per_block=10.8914, change_rate=0.0851
+[segment 81 -> 82] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 82] wrote './results/multi_TRLP.ddp.seg82': blocks=259, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=83, block_bits=128, prev_seg_blocks=259, hot_ratio=0.3438, avg_changes_per_block=11.4479, change_rate=0.0894
+[segment 82 -> 83] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 83] wrote './results/multi_TRLP.ddp.seg83': blocks=258, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=84, block_bits=128, prev_seg_blocks=258, hot_ratio=0.3672, avg_changes_per_block=12.6047, change_rate=0.0985
+[segment 83 -> 84] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 84] wrote './results/multi_TRLP.ddp.seg84': blocks=263, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=85, block_bits=128, prev_seg_blocks=263, hot_ratio=0.3750, avg_changes_per_block=12.4981, change_rate=0.0976
+[segment 84 -> 85] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 85] wrote './results/multi_TRLP.ddp.seg85': blocks=258, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=86, block_bits=128, prev_seg_blocks=258, hot_ratio=0.4141, avg_changes_per_block=14.6938, change_rate=0.1148
+[segment 85 -> 86] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 86] wrote './results/multi_TRLP.ddp.seg86': blocks=264, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=87, block_bits=128, prev_seg_blocks=264, hot_ratio=0.4219, avg_changes_per_block=16.8788, change_rate=0.1319
+[segment 86 -> 87] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 87] wrote './results/multi_TRLP.ddp.seg87': blocks=266, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=88, block_bits=128, prev_seg_blocks=266, hot_ratio=0.3750, avg_changes_per_block=14.5564, change_rate=0.1137
+[segment 87 -> 88] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 88] wrote './results/multi_TRLP.ddp.seg88': blocks=269, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=89, block_bits=128, prev_seg_blocks=269, hot_ratio=0.2031, avg_changes_per_block=11.9033, change_rate=0.0930
+[segment 88 -> 89] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 89] wrote './results/multi_TRLP.ddp.seg89': blocks=265, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=90, block_bits=128, prev_seg_blocks=265, hot_ratio=0.3516, avg_changes_per_block=12.3736, change_rate=0.0967
+[segment 89 -> 90] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 90] wrote './results/multi_TRLP.ddp.seg90': blocks=259, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=91, block_bits=128, prev_seg_blocks=259, hot_ratio=0.2812, avg_changes_per_block=11.3707, change_rate=0.0888
+[segment 90 -> 91] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 91] wrote './results/multi_TRLP.ddp.seg91': blocks=261, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=92, block_bits=128, prev_seg_blocks=261, hot_ratio=0.2734, avg_changes_per_block=11.2299, change_rate=0.0877
+[segment 91 -> 92] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 92] wrote './results/multi_TRLP.ddp.seg92': blocks=261, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=93, block_bits=128, prev_seg_blocks=261, hot_ratio=0.3047, avg_changes_per_block=10.8927, change_rate=0.0851
+[segment 92 -> 93] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 93] wrote './results/multi_TRLP.ddp.seg93': blocks=260, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=94, block_bits=128, prev_seg_blocks=260, hot_ratio=0.2656, avg_changes_per_block=11.4962, change_rate=0.0898
+[segment 93 -> 94] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 94] wrote './results/multi_TRLP.ddp.seg94': blocks=257, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=95, block_bits=128, prev_seg_blocks=257, hot_ratio=0.2812, avg_changes_per_block=11.5097, change_rate=0.0899
+[segment 94 -> 95] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 95] wrote './results/multi_TRLP.ddp.seg95': blocks=265, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=96, block_bits=128, prev_seg_blocks=265, hot_ratio=0.2891, avg_changes_per_block=10.0566, change_rate=0.0786
+[segment 95 -> 96] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 96] wrote './results/multi_TRLP.ddp.seg96': blocks=259, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=97, block_bits=128, prev_seg_blocks=259, hot_ratio=0.3203, avg_changes_per_block=12.4247, change_rate=0.0971
+[segment 96 -> 97] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 97] wrote './results/multi_TRLP.ddp.seg97': blocks=260, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=98, block_bits=128, prev_seg_blocks=260, hot_ratio=0.3438, avg_changes_per_block=12.0308, change_rate=0.0940
+[segment 97 -> 98] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 98] wrote './results/multi_TRLP.ddp.seg98': blocks=273, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=99, block_bits=128, prev_seg_blocks=273, hot_ratio=0.3047, avg_changes_per_block=11.9817, change_rate=0.0936
+[segment 98 -> 99] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 99] wrote './results/multi_TRLP.ddp.seg99': blocks=267, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=100, block_bits=128, prev_seg_blocks=267, hot_ratio=0.3125, avg_changes_per_block=12.8015, change_rate=0.1000
+[segment 99 -> 100] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 100] wrote './results/multi_TRLP.ddp.seg100': blocks=269, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=101, block_bits=128, prev_seg_blocks=269, hot_ratio=0.3125, avg_changes_per_block=11.6840, change_rate=0.0913
+[segment 100 -> 101] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 101] wrote './results/multi_TRLP.ddp.seg101': blocks=267, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=102, block_bits=128, prev_seg_blocks=267, hot_ratio=0.3047, avg_changes_per_block=12.4382, change_rate=0.0972
+[segment 101 -> 102] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 102] wrote './results/multi_TRLP.ddp.seg102': blocks=270, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=103, block_bits=128, prev_seg_blocks=270, hot_ratio=0.3047, avg_changes_per_block=12.8593, change_rate=0.1005
+[segment 102 -> 103] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 103] wrote './results/multi_TRLP.ddp.seg103': blocks=263, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=104, block_bits=128, prev_seg_blocks=263, hot_ratio=0.3203, avg_changes_per_block=14.7186, change_rate=0.1150
+[segment 103 -> 104] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 104] wrote './results/multi_TRLP.ddp.seg104': blocks=261, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=105, block_bits=128, prev_seg_blocks=261, hot_ratio=0.3203, avg_changes_per_block=14.0383, change_rate=0.1097
+[segment 104 -> 105] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 105] wrote './results/multi_TRLP.ddp.seg105': blocks=256, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=106, block_bits=128, prev_seg_blocks=256, hot_ratio=0.3203, avg_changes_per_block=12.7578, change_rate=0.0997
+[segment 105 -> 106] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 106] wrote './results/multi_TRLP.ddp.seg106': blocks=264, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=107, block_bits=128, prev_seg_blocks=264, hot_ratio=0.3438, avg_changes_per_block=12.8333, change_rate=0.1003
+[segment 106 -> 107] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 107] wrote './results/multi_TRLP.ddp.seg107': blocks=255, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=108, block_bits=128, prev_seg_blocks=255, hot_ratio=0.3281, avg_changes_per_block=12.3412, change_rate=0.0964
+[segment 107 -> 108] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 108] wrote './results/multi_TRLP.ddp.seg108': blocks=262, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=109, block_bits=128, prev_seg_blocks=262, hot_ratio=0.3203, avg_changes_per_block=11.1718, change_rate=0.0873
+[segment 108 -> 109] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 109] wrote './results/multi_TRLP.ddp.seg109': blocks=268, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=110, block_bits=128, prev_seg_blocks=268, hot_ratio=0.2578, avg_changes_per_block=11.0634, change_rate=0.0864
+[segment 109 -> 110] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 110] wrote './results/multi_TRLP.ddp.seg110': blocks=260, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=111, block_bits=128, prev_seg_blocks=260, hot_ratio=0.2734, avg_changes_per_block=12.1462, change_rate=0.0949
+[segment 110 -> 111] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 111] wrote './results/multi_TRLP.ddp.seg111': blocks=274, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=112, block_bits=128, prev_seg_blocks=274, hot_ratio=0.3281, avg_changes_per_block=11.8175, change_rate=0.0923
+[segment 111 -> 112] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 112] wrote './results/multi_TRLP.ddp.seg112': blocks=444, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=113, block_bits=128, prev_seg_blocks=444, hot_ratio=0.1562, avg_changes_per_block=7.0023, change_rate=0.0547
+[segment 112 -> 113] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 113] wrote './results/multi_TRLP.ddp.seg113': blocks=494, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=114, block_bits=128, prev_seg_blocks=494, hot_ratio=0.2266, avg_changes_per_block=7.6498, change_rate=0.0598
+[segment 113 -> 114] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 114] wrote './results/multi_TRLP.ddp.seg114': blocks=617, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=115, block_bits=128, prev_seg_blocks=617, hot_ratio=0.1484, avg_changes_per_block=7.5754, change_rate=0.0592
+[segment 114 -> 115] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 115] wrote './results/multi_TRLP.ddp.seg115': blocks=555, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=116, block_bits=128, prev_seg_blocks=555, hot_ratio=0.1641, avg_changes_per_block=7.9279, change_rate=0.0619
+[segment 115 -> 116] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 116] wrote './results/multi_TRLP.ddp.seg116': blocks=566, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=117, block_bits=128, prev_seg_blocks=566, hot_ratio=0.1953, avg_changes_per_block=7.7668, change_rate=0.0607
+[segment 116 -> 117] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 117] wrote './results/multi_TRLP.ddp.seg117': blocks=553, dict_size=255, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+[decide_dev_pos_count_for_segment] next_seg=118, block_bits=128, prev_seg_blocks=553, hot_ratio=0.2344, avg_changes_per_block=8.6383, change_rate=0.0675
+[segment 117 -> 118] next_dev_pos_count=128 (selected=128), cur_dev_len=16 bytes
+[segment 118] wrote './results/multi_TRLP.ddp.seg118': blocks=529, dict_size=188, dev_len_per_block=16 (bytes), dev_pos_count=128 (bits)
+=== Bit change counts (sorted, desc) ===
+  rank   0: bit 102 (byte  12, bit 6) => 20484 changes
+  rank   1: bit  97 (byte  12, bit 1) => 20440 changes
+  rank   2: bit  54 (byte   6, bit 6) => 20437 changes
+  rank   3: bit  50 (byte   6, bit 2) => 20347 changes
+  rank   4: bit  98 (byte  12, bit 2) => 20347 changes
+  rank   5: bit 101 (byte  12, bit 5) => 20336 changes
+  rank   6: bit  49 (byte   6, bit 1) => 20283 changes
+  rank   7: bit  53 (byte   6, bit 5) => 20106 changes
+  rank   8: bit 103 (byte  12, bit 7) => 18625 changes
+  rank   9: bit  55 (byte   6, bit 7) => 18247 changes
+  rank  10: bit  99 (byte  12, bit 3) => 17879 changes
+  rank  11: bit  51 (byte   6, bit 3) => 17811 changes
+  rank  12: bit  16 (byte   2, bit 0) => 15619 changes
+  rank  13: bit 100 (byte  12, bit 4) => 11465 changes
+  rank  14: bit  52 (byte   6, bit 4) => 11413 changes
+  rank  15: bit 104 (byte  13, bit 0) => 10217 changes
+  rank  16: bit  56 (byte   7, bit 0) => 10096 changes
+  rank  17: bit  83 (byte  10, bit 3) => 9982 changes
+  rank  18: bit  35 (byte   4, bit 3) => 9968 changes
+  rank  19: bit  36 (byte   4, bit 4) => 9740 changes
+  rank  20: bit  84 (byte  10, bit 4) => 9624 changes
+  rank  21: bit  17 (byte   2, bit 1) => 7772 changes
+  rank  22: bit  32 (byte   4, bit 0) => 7738 changes
+  rank  23: bit  80 (byte  10, bit 0) => 7664 changes
+  rank  24: bit  85 (byte  10, bit 5) => 6204 changes
+  rank  25: bit  37 (byte   4, bit 5) => 6194 changes
+  rank  26: bit   0 (byte   0, bit 0) => 5500 changes
+  rank  27: bit  57 (byte   7, bit 1) => 4426 changes
+  rank  28: bit 105 (byte  13, bit 1) => 4401 changes
+  rank  29: bit  33 (byte   4, bit 1) => 3750 changes
+  rank  30: bit  18 (byte   2, bit 2) => 3712 changes
+  rank  31: bit  81 (byte  10, bit 1) => 3698 changes
+  rank  32: bit  38 (byte   4, bit 6) => 3616 changes
+  rank  33: bit  86 (byte  10, bit 6) => 3596 changes
+  rank  34: bit  58 (byte   7, bit 2) => 2702 changes
+  rank  35: bit 106 (byte  13, bit 2) => 2687 changes
+  rank  36: bit  19 (byte   2, bit 3) => 2635 changes
+  rank  37: bit   1 (byte   0, bit 1) => 2629 changes
+  rank  38: bit  34 (byte   4, bit 2) => 2286 changes
+  rank  39: bit  82 (byte  10, bit 2) => 2168 changes
+  rank  40: bit  39 (byte   4, bit 7) => 2036 changes
+  rank  41: bit  87 (byte  10, bit 7) => 2028 changes
+  rank  42: bit  59 (byte   7, bit 3) => 1647 changes
+  rank  43: bit 107 (byte  13, bit 3) => 1607 changes
+  rank  44: bit   2 (byte   0, bit 2) => 1316 changes
+  rank  45: bit  40 (byte   5, bit 0) => 1084 changes
+  rank  46: bit  88 (byte  11, bit 0) => 1072 changes
+  rank  47: bit  41 (byte   5, bit 1) => 994 changes
+  rank  48: bit  89 (byte  11, bit 1) => 986 changes
+  rank  49: bit   3 (byte   0, bit 3) => 676 changes
+  rank  50: bit  42 (byte   5, bit 2) => 644 changes
+  rank  51: bit  43 (byte   5, bit 3) => 642 changes
+  rank  52: bit  90 (byte  11, bit 2) => 628 changes
+  rank  53: bit  91 (byte  11, bit 3) => 628 changes
+  rank  54: bit  60 (byte   7, bit 4) => 496 changes
+  rank  55: bit  61 (byte   7, bit 5) => 496 changes
+  rank  56: bit 109 (byte  13, bit 5) => 460 changes
+  rank  57: bit 108 (byte  13, bit 4) => 458 changes
+  rank  58: bit  20 (byte   2, bit 4) => 383 changes
+  rank  59: bit   4 (byte   0, bit 4) => 102 changes
+  rank  60: bit   5 (byte   0, bit 5) => 102 changes
+  rank  61: bit   6 (byte   0, bit 6) => 102 changes
+  rank  62: bit  21 (byte   2, bit 5) => 83 changes
+  rank  63: bit  22 (byte   2, bit 6) => 68 changes
+Compressed (DDP1 multi, segmented, online dev-top-N): used_bytes=670944, block_bytes=16, total_blocks=41934, segments=119 (segment0: policy에 따라 보통 pure dedup, 이후 segment는 online dev)

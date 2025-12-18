@@ -129,3 +129,14 @@ void bitstats_print_sorted(FILE *out,
 
     free(arr);
 }
+
+void bitstats_reset(BitStats *bs)
+{
+    if (!bs) return;
+    if (bs->num_bits == 0) return;
+
+    memset(bs->prev_bits,    0, bs->num_bits);
+    memset(bs->initialized,  0, bs->num_bits);
+    memset(bs->change_counts, 0, bs->num_bits * sizeof(uint64_t));
+}
+
