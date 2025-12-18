@@ -5,29 +5,33 @@
 #include <stdint.h>
 #include <stdio.h>
 
-/* 블록 단위 비트 변동 횟수 기록용 구조체 */
-typedef struct {
-    size_t    num_bits;       /* 블록당 비트 개수 (block_bytes * 8) */
-    uint64_t *change_counts;  /* 각 bit_pos마다 변동 횟수 */
-    uint8_t  *last_values;    /* 직전 블록에서의 bit 값(0/1) */
-    int       initialized;    /* 첫 블록 처리 여부 */
+/* ------------------------------------------------------------
+ * BitStats
+ *  - num_bits: 블록 당 비트 개수 (block_bytes * 8)
+ *  - prev_bits[i]: 직전 블록에서의 비트값 (0/1)
+ *  - initialized[i]: prev_bits 초기화 여부
+ *  - change_counts[i]: 블록 간에서 값이 바뀐 횟수
+ * ------------------------------------------------------------ */
+typedef struct BitStats {
+    size_t   num_bits;
+    uint8_t *prev_bits;
+    uint8_t *initialized;
+    uint64_t *change_counts;
 } BitStats;
 
-/* 초기화: num_bits 만큼 change_counts/last_values 할당 */
-int  bitstats_init(BitStats *bs, size_t num_bits);
+BitStats *bitstats_create(size_t num_bits);
+void      bitstats_free(BitStats *bs);
 
-/* 메모리 해제 */
-void bitstats_free(BitStats *bs);
-
-/* 블록 하나를 넣어서 비트 변동 횟수 갱신 */
+/* block_bytes는 실제 블록 바이트 수 (num_bits == block_bytes * 8 가정) */
 void bitstats_update_block(BitStats *bs,
                            const unsigned char *block,
                            size_t block_bytes);
 
-/* (옵션) 그냥 순서대로 출력 */
-void bitstats_print(FILE *out, const BitStats *bs);
-
-/* 변동 횟수 기준 내림차순 정렬해서 출력 */
-void bitstats_print_sorted(FILE *out, const BitStats *bs);
+/* 변동 횟수 기준으로 내림차순 정렬해서 상위 max_print개 출력
+ * max_print == 0이면 전체 출력
+ */
+void bitstats_print_sorted(FILE *out,
+                           const BitStats *bs,
+                           size_t max_print);
 
 #endif /* BITSTATS_H */

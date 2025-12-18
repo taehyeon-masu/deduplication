@@ -2,166 +2,129 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
+#include <inttypes.h>  /* PRIu64 */
 
-/* 내부 helper: LSB-first bit 접근 */
-static inline uint8_t get_bit_from_bytes(const unsigned char *buf, size_t bit_pos)
+static inline uint8_t get_bit_from_block(const unsigned char *buf, size_t bit_pos)
 {
     size_t byte_idx = bit_pos / 8u;
-    int    bit_idx  = (int)(bit_pos % 8u);
+    int    bit_idx  = (int)(bit_pos % 8u);  /* LSB-first */
     return (uint8_t)((buf[byte_idx] >> bit_idx) & 1u);
 }
 
-/* ------------------------------------------------------------
- * 초기화 / 해제
- * ------------------------------------------------------------ */
-
-int bitstats_init(BitStats *bs, size_t num_bits)
+BitStats *bitstats_create(size_t num_bits)
 {
-    if (!bs || num_bits == 0)
-        return -1;
+    BitStats *bs = (BitStats *)malloc(sizeof(BitStats));
+    if (!bs) return NULL;
 
-    bs->num_bits = num_bits;
-    bs->change_counts = (uint64_t *)calloc(num_bits, sizeof(uint64_t));
-    bs->last_values   = (uint8_t  *)malloc(num_bits);
-    if (!bs->change_counts || !bs->last_values)
+    bs->num_bits      = num_bits;
+    bs->prev_bits     = (uint8_t *)malloc(num_bits * sizeof(uint8_t));
+    bs->initialized   = (uint8_t *)malloc(num_bits * sizeof(uint8_t));
+    bs->change_counts = (uint64_t *)malloc(num_bits * sizeof(uint64_t));
+
+    if (!bs->prev_bits || !bs->initialized || !bs->change_counts)
     {
+        free(bs->prev_bits);
+        free(bs->initialized);
         free(bs->change_counts);
-        free(bs->last_values);
-        memset(bs, 0, sizeof(*bs));
-        return -1;
+        free(bs);
+        return NULL;
     }
 
-    memset(bs->last_values, 0, num_bits);
-    bs->initialized = 0;
-    return 0;
+    memset(bs->prev_bits, 0, num_bits * sizeof(uint8_t));
+    memset(bs->initialized, 0, num_bits * sizeof(uint8_t));
+    memset(bs->change_counts, 0, num_bits * sizeof(uint64_t));
+
+    return bs;
 }
 
 void bitstats_free(BitStats *bs)
 {
     if (!bs) return;
+    free(bs->prev_bits);
+    free(bs->initialized);
     free(bs->change_counts);
-    free(bs->last_values);
-    memset(bs, 0, sizeof(*bs));
+    free(bs);
 }
-
-/* ------------------------------------------------------------
- * 블록 단위 업데이트
- *   - 첫 블록: last_values만 채우고, change_counts는 증가시키지 않음
- *   - 두 번째 블록부터:
- *       bit 값이 이전(last_values)와 다르면 change_counts[bit_pos]++
- *       그리고 last_values 갱신
- * ------------------------------------------------------------ */
 
 void bitstats_update_block(BitStats *bs,
                            const unsigned char *block,
                            size_t block_bytes)
 {
     if (!bs || !block) return;
-
     size_t block_bits = block_bytes * 8u;
     if (block_bits < bs->num_bits)
-        block_bits = bs->num_bits; /* 혹시 block_bytes*8 < num_bits면 num_bits까지만 사용 */
+        block_bits = bs->num_bits;  /* 방어적이지만, 보통은 == 여야 함 */
 
-    size_t limit = bs->num_bits;
+    size_t num_bits = bs->num_bits;
+    if (num_bits > block_bits) num_bits = block_bits;
 
-    if (!bs->initialized)
+    for (size_t bit_pos = 0; bit_pos < num_bits; ++bit_pos)
     {
-        /* 첫 블록: 기준값만 저장 */
-        for (size_t i = 0; i < limit; ++i)
+        uint8_t cur = get_bit_from_block(block, bit_pos);
+        if (!bs->initialized[bit_pos])
         {
-            if (i >= block_bytes * 8u) break;
-            uint8_t bit = get_bit_from_bytes(block, i);
-            bs->last_values[i] = bit;
+            bs->initialized[bit_pos] = 1;
+            bs->prev_bits[bit_pos]   = cur;
         }
-        bs->initialized = 1;
-        return;
-    }
-
-    /* 두 번째 이후 블록: 변화 감지 */
-    for (size_t i = 0; i < limit; ++i)
-    {
-        if (i >= block_bytes * 8u) break;
-        uint8_t bit = get_bit_from_bytes(block, i);
-        if (bit != bs->last_values[i])
+        else
         {
-            bs->change_counts[i] += 1;
-            bs->last_values[i] = bit;
+            if (cur != bs->prev_bits[bit_pos])
+            {
+                bs->change_counts[bit_pos]++;
+                bs->prev_bits[bit_pos] = cur;
+            }
         }
     }
 }
 
-/* ------------------------------------------------------------
- * 출력: 원래 순서 (0..num_bits-1)
- * ------------------------------------------------------------ */
-
-void bitstats_print(FILE *out, const BitStats *bs)
-{
-    if (!out || !bs || !bs->change_counts) return;
-
-    fprintf(out, "Bit change counts (unsorted):\n");
-    for (size_t i = 0; i < bs->num_bits; ++i)
-    {
-        size_t   bit_pos  = i;
-        size_t   byte_idx = bit_pos / 8u;
-        int      bit_in   = (int)(bit_pos % 8u);
-        uint64_t cnt      = bs->change_counts[bit_pos];
-
-        fprintf(out,
-                "  bit %3zu (byte %3zu, bit %d): %" PRIu64 "\n",
-                bit_pos, byte_idx, bit_in, cnt);
-    }
-}
-
-/* ------------------------------------------------------------
- * 정렬된 출력: change_counts 기준 내림차순
- * ------------------------------------------------------------ */
-
+/* 정렬용 구조체 */
 typedef struct {
-    size_t   bit_pos;
+    size_t   bit_index;
     uint64_t count;
-} BitCount;
+} BitChange;
 
-static int cmp_bitcount_desc(const void *a, const void *b)
+static int cmp_bitchange_desc(const void *a, const void *b)
 {
-    const BitCount *x = (const BitCount *)a;
-    const BitCount *y = (const BitCount *)b;
-    if (x->count < y->count) return 1;   /* 내림차순 */
-    if (x->count > y->count) return -1;
+    const BitChange *pa = (const BitChange *)a;
+    const BitChange *pb = (const BitChange *)b;
+
+    if (pa->count < pb->count) return 1;   /* 내림차순 */
+    if (pa->count > pb->count) return -1;
+    if (pa->bit_index > pb->bit_index) return 1;
+    if (pa->bit_index < pb->bit_index) return -1;
     return 0;
 }
 
-void bitstats_print_sorted(FILE *out, const BitStats *bs)
+void bitstats_print_sorted(FILE *out,
+                           const BitStats *bs,
+                           size_t max_print)
 {
-    if (!out || !bs || !bs->change_counts) return;
+    if (!bs || !out) return;
 
     size_t num_bits = bs->num_bits;
-    BitCount *arr = (BitCount *)malloc(sizeof(BitCount) * num_bits);
-    if (!arr)
-    {
-        fprintf(out, "bitstats_print_sorted: malloc failed\n");
-        return;
-    }
+    BitChange *arr = (BitChange *)malloc(num_bits * sizeof(BitChange));
+    if (!arr) return;
 
     for (size_t i = 0; i < num_bits; ++i)
     {
-        arr[i].bit_pos = i;
-        arr[i].count   = bs->change_counts[i];
+        arr[i].bit_index = i;
+        arr[i].count     = bs->change_counts[i];
     }
 
-    qsort(arr, num_bits, sizeof(BitCount), cmp_bitcount_desc);
+    qsort(arr, num_bits, sizeof(BitChange), cmp_bitchange_desc);
 
-    fprintf(out, "Bit change counts (sorted by count desc):\n");
-    for (size_t k = 0; k < num_bits; ++k)
+    fprintf(out, "=== Bit change counts (sorted, desc) ===\n");
+    size_t limit = (max_print == 0 || max_print > num_bits) ? num_bits : max_print;
+    for (size_t rank = 0; rank < limit; ++rank)
     {
-        size_t   bit_pos  = arr[k].bit_pos;
-        size_t   byte_idx = bit_pos / 8u;
-        int      bit_in   = (int)(bit_pos % 8u);
-        uint64_t cnt      = arr[k].count;
+        size_t   bit_pos = arr[rank].bit_index;
+        uint64_t cnt     = arr[rank].count;
+        size_t  byte_idx = bit_pos / 8u;
+        int     bit_in   = (int)(bit_pos % 8u);
 
         fprintf(out,
-                "  bit %3zu (byte %3zu, bit %d): %" PRIu64 "\n",
-                bit_pos, byte_idx, bit_in, cnt);
+                "  rank %3zu: bit %3zu (byte %3zu, bit %d) => %" PRIu64 " changes\n",
+                rank, bit_pos, byte_idx, bit_in, cnt);
     }
 
     free(arr);
